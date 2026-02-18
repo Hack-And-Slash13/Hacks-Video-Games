@@ -28,3 +28,7 @@ Saint Sneak is a game where you play a preist and try to sneak around guards to 
 ### Button Masher
 
 Button Masher is a pygame game where you have to push a button that moves around the screen. You must have pygame installed to run this file.
+
+### Cosmo Crash
+
+Cosmo Crash is a pygame game where you fly a spaceship through an asteroid feild, and try not to get hit. You must download all the files in the Cosmo Crash folder and have pygame installed to run it. You can use the WASD keys or a controller.
