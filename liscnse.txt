@@ -1,0 +1,13 @@
+## License
+
+This repository is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License**.
+
+You may:
+
+- Download, play, and modify these games for personal, non-commercial use.
+- Share the games with others for non-commercial purposes.
+
+You may not:
+- Use these games or any part of them for commercial purposes, including selling, monetizing, or using them in a paid service or product.
+
+For more details, see the full text at: https://creativecommons.org/licenses/by-nc/4.0/
