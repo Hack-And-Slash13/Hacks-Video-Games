@@ -13,7 +13,7 @@ This repository contains a few video games written entirely in python
 
 ### Lich's Fortress
 
-Lich's Fortress is a text-based RPG game using only built-in python functions.
+Lich's Fortress is a text-based RPG game that doesn't require any external modules.
 
 
 ### Bubble Blaster
