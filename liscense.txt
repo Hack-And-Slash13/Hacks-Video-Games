@@ -1,6 +1,6 @@
-## License
+License
 
-This repository is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License**.
+This repository is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.
 
 You may:
 
