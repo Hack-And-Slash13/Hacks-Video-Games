@@ -1,4 +1,4 @@
-import pygame, random, time, threading, json, os, math
+import pygame, random, time, threading, json, os, math, sys
 from pygame.locals import *
 pygame.init()
 pygame.mixer.init()
@@ -10,6 +10,16 @@ clock = pygame.time.Clock()
 insults = ["You can open your eyes now, just don't look at your score.", "Were your eyes closed?", "Are you blind?", "You know, you're not supposed to aim for the asteroids.", "I hope you have insurance.", "Nice try! Just try steering next time", "Congratulations! You got a new low score!", "womp womp whaaaa...", "Use the force", "Oh come on! It's only rocket science!", "Wow! You're only a million points away from a million points!", "Your supposed to aim for the coins, not the asteroids.", "Wow, that was fast! I thought you'd last at least 12 seconds!", "Try shooting the asteroids, instead of giving them a hug.", "Back already? I'll call the ambulance.", "Ouch! You might need to increase your insurance policy after that one.", "That was great! Next time, just try to hit the coins instead of the asteroids.", "Player: 0; Asteroids: ummm... I lost count.", "I can't tell if you have more rocks smashing your ship or in your head.", "That was dumber than a box of asteroids.", "Oh come on! A box of asteroids could've done better!", "Giant flaming asteroids are bad. Free money is good. Not the other way around.", "You know, there are better ways to get rid of a spaceship.", "Nice try! Just learn how to fly a spaceship and you'll do great!", "I'd tell you to read the instructions to that spaceship, but I don't want you to blow them up.", "Why don't you try blowing up the asteroids instead of the spaceship next time?"]
 cheat_code = [K_BACKSPACE, K_SPACE, K_BACKSLASH, K_MINUS, K_c]
 hard_mode_code = [K_h, K_a, K_r, K_d, K_SPACE]
+
+def resource_path(filename):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, filename)
+
+icon = pygame.image.load(resource_path("spaceship_icon.ico"))
+pygame.display.set_icon(icon)
 
 def reset():
     global px, py, player_imagex, star_list, enemy_list, asteroid_masks, stars, enemies, dead, game_over, difficulty, points, font, coin_imagex, coins, coin_list, counter, invincible, key_list, cooldown, comet_spawned, Comet, Powerup, powerup_spawned, powerup_imagex, bullet_list, speed_boost, rapid_fire, high_score, hard_mode
@@ -41,8 +51,8 @@ def reset():
     powerup_imagex = 0
     key_list = []
     font = pygame.font.SysFont(None, 70, bold=True)
-    pygame.mixer.music.load("Cosmo_Crash_song.mp3")
-    high_score = load("high score", "Cosmo_Crash_save_data")
+    pygame.mixer.music.load(resource_path("Cosmo_Crash_song.mp3"))
+    high_score = load(resource_path("high score"), resource_path("Cosmo_Crash_save_data"))
 
 def handle_input():
     global px, py, cooldown, bulletx, bullety, speed_boost, rapid_fire, cutscene, game_over, dead, difficulty
@@ -113,9 +123,9 @@ def handle_input():
         pass
 
 def save(data, name):
-    if not os.path.exists("Cosmo_Crash_save_data"):
-        os.makedirs("Cosmo_Crash_save_data")
-    filepath = os.path.join("Cosmo_Crash_save_data", name)
+    if not os.path.exists(resource_path("Cosmo_Crash_save_data")):
+        os.makedirs(resource_path("Cosmo_Crash_save_data"))
+    filepath = os.path.join(resource_path("Cosmo_Crash_save_data"), name)
     try:
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=4)
@@ -210,7 +220,7 @@ class asteroid:
                         else:
                             direction = "left"
                             rotation = 20
-                        pygame.mixer.music.load("womp-womp.mp3")
+                        pygame.mixer.music.load(resource_path("womp-womp.mp3"))
                         pygame.mixer.music.play(1)
                         dead = True
             try:
@@ -250,8 +260,10 @@ class comet:
                 if invincible == False:
                     mask = pygame.mask.from_surface(comet_sprite)
                     spaceship_sprite = spaceship.subsurface((160*round(player_imagex/160), 0, 160, 160))
-                    spaceship_mask = pygame.mask.from_surface(spaceship_sprite)
-                    offset = (c.x - px, c.y - py)
+                    resized_spaceship_sprite = pygame.transform.scale(spaceship_sprite, (60, 130))
+                    spaceship_mask = pygame.mask.from_surface(resized_spaceship_sprite)
+                    spaceship_rect = resized_spaceship_sprite.get_rect(topleft=((px+50), (py+15)))
+                    offset = (spaceship_rect.x - comet_rect.x, spaceship_rect.y - comet_rect.y)
                     if mask.overlap(spaceship_mask, offset):
                         if px > comet_rect.x:
                             direction = "right"
@@ -259,7 +271,7 @@ class comet:
                         else:
                             direction = "left"
                             rotation = 20
-                        pygame.mixer.music.load("womp-womp.mp3")
+                        pygame.mixer.music.load(resource_path("womp-womp.mp3"))
                         pygame.mixer.music.play(1)
                         dead = True
             except:
@@ -434,21 +446,21 @@ def spawn():
 
 reset()
 cutscene = True
-image = pygame.image.load("spaceship_spritesheet.png")
+image = pygame.image.load(resource_path("spaceship_spritesheet.png"))
 spaceship = pygame.transform.scale(image, (1120, 160))
 spaceship.set_colorkey(Color(0, 0, 0))
-asteroids = pygame.image.load("asteroid_spritesheet.png")
+asteroids = pygame.image.load(resource_path("asteroid_spritesheet.png"))
 asteroids.set_colorkey(Color(255, 255, 255))
-coin = pygame.image.load("spinning_coin.png")
+coin = pygame.image.load(resource_path("spinning_coin.png"))
 coin = pygame.transform.scale(coin, (960, 96))
 coin.set_colorkey(Color(255, 255, 255))
-power_ups = pygame.image.load("power_ups.png")
+power_ups = pygame.image.load(resource_path("power_ups.png"))
 power_ups = pygame.transform.scale(power_ups, (768, 384))
 power_ups.set_colorkey(Color(0, 0, 0))
-comet_spritesheet = pygame.image.load("comet.png")
+comet_spritesheet = pygame.image.load(resource_path("comet.png"))
 comet_spritesheet.set_colorkey(Color(0, 0, 0))
-laser_sound = pygame.mixer.Sound("laser.wav")
-explosion_sound = pygame.mixer.Sound("explosion.wav")
+laser_sound = pygame.mixer.Sound(resource_path("laser.wav"))
+explosion_sound = pygame.mixer.Sound(resource_path("explosion.wav"))
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Cosmo Crash")
 
@@ -600,4 +612,4 @@ while running == True:
     else:
         clock.tick(60)
 pygame.quit()
-exit()
+sys.exit()
