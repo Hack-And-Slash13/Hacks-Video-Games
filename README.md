@@ -7,6 +7,12 @@
 
 This repository contains a few video games written entirely in python
 
+
+## Setup
+
+All of these games are written in Python, so you must install it from the Python website: https://www.python.org/downloads/. Some of the games also require pygame. You can install that by typing this in your computers command prompt or terminal or whatever: pip install pygame (it might be pip3 install pygame for some of you). Once you have both of those installed, you should be able to just download the games and run them. (for the games with game assets, you'll need to download them too).
+
+
 ## Games
 
 
