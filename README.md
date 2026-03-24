@@ -39,6 +39,10 @@ Cosmo Crash is a pygame game where you fly a spaceship through an asteroid feild
 
 Cypher Smasher is a 10-level game using pygame where each level is a different kind of cypher that you must decrypt. It doesn't use any game assets, so as long as you have python and pygame installed, you can just download it and run it.
 
+### Bible Trivia Game
+
+Bible Trivia Game is a trivia game about the bible (can you believe it?). It uses pygame and requests. It also pulls questions from this website: [https://hack-and-slash13.github.io/Bible-Trivia-Game/](https://hack-and-slash13.github.io/Bible-Trivia-Game/), so you have to have internet to play.
+
 ### Note about the Game Assets
 
 All of the sprite sheets in Cosmo Crash were created by me, so you can use them however you want. However, I found all of the other game assets online, and I don't know what their licences are, so use them carefully, and, unless you can hunt down the license, I would reccomend not using them for commercial purposes.
