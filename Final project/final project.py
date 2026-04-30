@@ -70,6 +70,7 @@ def submit_input(x):
             player = character(user_input, None, None)
             game_data["name"] = user_input
             game_data["player"] = player.dict
+            game_data["mission"] = 1
             user_input = ""
             game_state = "choose race"
 
@@ -86,74 +87,81 @@ def draw_button(words, y, color=pygame.Color(255, 255, 255), bg=pygame.Color(150
 def spawn_npc():
     global current_map, npc_list
     npc_list = []
-    if current_map == city_map:
-        number = random.randint(10, 30)
+    if game_data["area"] == "city":
+        number = random.randint(20, 50)
     else:
-        number = random.randint(10, 30)
+        number = 0
     for n in range(number):
         new_npc = None
         if current_map == city_map:
             x = random.randint(0, 8000)
             y = random.randint(0, 8000)
-        while new_npc == None:
+        while True:
+            collision = False
             for thing in current_map.keys():
                 rect = pygame.Rect(x - 192, y - 192, 384, 384)
                 if rect.colliderect(thing):
-                    x = random.randint(0, 8000)
-                    y = random.randint(0, 8000)
-                else:
-                    other_number = random.randint(1, 4)
-                    if other_number == 1:
-                        direction = "north"
-                    elif other_number == 2:
-                        direction = "east"
-                    elif other_number == 3:
-                        direction = "west"
-                    elif other_number == 4:
-                        direction = "south"
-                    new_number = random.randint(1, 4)
-                    if new_number == 1:
-                        words = random.sample(npc1_insults, 5)
-                        if direction == "north":    
-                            imagey = 192
-                        elif direction == "east":    
-                            imagey = 384
-                        elif direction == "west":    
-                            imagey = 576
-                        elif direction == "south":    
-                            imagey = 0
-                    elif new_number == 2:
-                        words = random.sample(npc2_insults, 5)
-                        if direction == "north":    
-                            imagey = 768
-                        elif direction == "east":    
-                            imagey = 1152
-                        elif direction == "west":    
-                            imagey = 1344
-                        elif direction == "south":    
-                            imagey = 960
-                    elif new_number == 3:
-                        words = random.sample(npc3_insults, 5)
-                        if direction == "north":    
-                            imagey = 1728
-                        elif direction == "east":    
-                            imagey = 1920
-                        elif direction == "west":    
-                            imagey = 2112
-                        elif direction == "south":    
-                            imagey = 1536
-                    elif new_number == 4:
-                        words = random.sample(npc4_insults, 5)
-                        if direction == "north":    
-                            imagey = 2496
-                        elif direction == "east":    
-                            imagey = 2688
-                        elif direction == "west":    
-                            imagey = 2880
-                        elif direction == "south":    
-                            imagey = 2304
-                    new_npc = NPC_class(x, y, 0, imagey, random.randint(5, 10), direction, words)
-                    npc_list.append(new_npc)
+                    x = random.randint(0, 7000)
+                    y = random.randint(0, 7000)
+                    collision = True
+            if collision == False:
+                break
+        other_number = random.randint(1, 4)
+        if other_number == 1:
+            direction = "north"
+        elif other_number == 2:
+            direction = "east"
+        elif other_number == 3:
+            direction = "west"
+        elif other_number == 4:
+            direction = "south"
+        new_number = random.randint(1, 4)
+        if new_number == 1:
+            if game_data["mission"] == 1:
+                words = random.sample(npc1_insults[1], 5)
+            if direction == "north":    
+                imagey = 192
+            elif direction == "east":    
+                imagey = 384
+            elif direction == "west":    
+                imagey = 576
+            elif direction == "south":    
+                imagey = 0
+        elif new_number == 2:
+            if game_data["mission"] == 1:
+                words = random.sample(npc2_insults[1], 5)
+            if direction == "north":    
+                imagey = 768
+            elif direction == "east":    
+                imagey = 1152
+            elif direction == "west":    
+                imagey = 1344
+            elif direction == "south":    
+                imagey = 960
+        elif new_number == 3:
+            if game_data["mission"] == 1:
+                words = random.sample(npc3_insults[1], 5)
+            if direction == "north":    
+                imagey = 1728
+            elif direction == "east":    
+                imagey = 1920
+            elif direction == "west":    
+                imagey = 2112
+            elif direction == "south":    
+                imagey = 1536
+        elif new_number == 4:
+            if game_data["mission"] == 1:
+                words = random.sample(npc4_insults[1], 5)
+            if direction == "north":    
+                imagey = 2496
+            elif direction == "east":    
+                imagey = 2688
+            elif direction == "west":    
+                imagey = 2880
+            elif direction == "south":    
+                imagey = 2304
+        new_npc = NPC_class(x, y, 0, imagey, random.randint(5, 10), direction, words)
+        npc_list.append(new_npc)
 
 class NPC_class():
     def __init__(self, x, y, imagex, imagey, speed, direction, words):
@@ -184,16 +192,21 @@ class character():
         self.dict = {"name": self.name, "race": self.race, "Class": self.Class, "health": self.health, "gold": self.gold, "inventory": self.inventory, "level": self.level, "stats": self.stats, "weapon_equiped": self.weapon_equiped, "armor_equiped": self.armor_equiped, "accessory_equiped": self.accessory_equiped}
     
 #8000 X 8000 pixels
-city_map = {(0, 0, 200, 7600): "wall", (0, 7400, 7600, 200): "wall", (7400, 0, 200, 7600): "wall", (0, 0, 7600, 200): "wall", (500, 1200, 768, 768):"house", (700, 7000, 768, 768): "house", (800, 6400, 768, 768): "house", (6000, 5000, 768, 768): "house", (4000, 3700, 768, 768): "building", (6500, 400, 768, 768): "building", (500, 1750, 768, 768): "building"}
+city_map = {(0, 0, 200, 7600): "wall", (0, 7400, 7600, 200): "wall", (7400, 0, 200, 7600): "wall", (0, 0, 7600, 200): "wall", (500, 1200, 768, 768):"house", (700, 7000, 768, 768): "house", (800, 6400, 768, 768): "house", (6000, 5000, 768, 768): "house", (4000, 3700, 768, 768): "building", (4500, 600, 768, 768): "building", (700, 1750, 768, 768): "building", (4000, 2000, 3000, 2000): "castle"}
+castle_map = {}
 
-npc1_insults = ["Get off my lawn, you whippersnapper!", "Howdy!", "Don't you have something better to do?", "hrrmmm...", "Oh it's you again... I'm gonna go take a nap.", "What are you up to?", "That's it. Nap time."]
-npc2_insults = ["What?", "What do you want?", "Don't you have something better to do?", "What is it this time?", "I gotta go, bye.", "Goodbye.", "Nice hair."]
-npc3_insults = ["Yo!", "Sup?", "Hey, are you looking at me weird? You jealous of my sick pants, huh?", "Beat it, stalker", "Do I know you?", "Hey, *cough* *cough* nerd.", "Why are you here? What do you think this is, some kind of game?"]
-npc4_insults = ["I went to college!", "Don't touch my dress, it's dry clean only!", "Don't be mean to me, I'm rich!", "Go away, peasant", "Go back to grad school!", "What do you want, peasant?", "Goodbye, peasant."]
+npc1_insults = {1: ["I heard the king has a really important mission for you.", "Howdy!", "Don't you have something better to do?", "The castle's up north if that's where your headed", "Shouldn't you be going to the castle?", "What are you up to?", "That's it. Nap time."]}
+npc2_insults = {1: ["What?", "What do you want?", "Don't you have something better to do?", "What is it this time?", "Hello.", "If you're looking for the castle, just follow the road north.", "Nice hair."]}
+npc3_insults = {1: ["Yo!", "Sup?", "What's up?", "Hey.", "Do I know you?", "Be carefull in the castle, I don't trust the king one bit.", "The castle's up north. Just follow the road."]}
+npc4_insults = {1: ["The road's over there. Use it.", "I gotta go, I'm late for nap time.", "Looking for the castle? Just follow the road north.", "If the king sent for you, you'd better get to the castle.", "Don't you have somewhere to be?", "What do you want, peasant?", "Goodbye."]}
 city_background = pygame.image.load(resource_path("city_background.png"))
 city_background = pygame.transform.scale(city_background, (9000, 9000))
+castle_background = pygame.image.load(resource_path("castle_background.png"))
+castle_background = pygame.transform.scale(castle_background, (4000, 4000))
 objects = pygame.image.load(resource_path("objects.png"))
-objects = pygame.transform.scale(objects, (2304, 2304))
+objects = pygame.transform.scale(objects, (1536, 1536))
+castle_image = pygame.image.load(resource_path("castle.png"))
+castle_image = pygame.transform.scale(castle_image, (960, 192))
 human = pygame.image.load(resource_path("human.png"))
 elf = pygame.image.load(resource_path("elf.png"))
 dwarf = pygame.image.load(resource_path("dwarf.png"))
@@ -204,6 +217,7 @@ npc = pygame.image.load(resource_path("npc.png"))
 npc = pygame.transform.scale(npc, (1536, 3072))
 mouse_pointer = pygame.image.load(resource_path("sword.png"))
 mouse_pointer = pygame.transform.rotate(mouse_pointer, 35)
+pygame.mixer.music.load(resource_path("music.wav"))
 
 too_long_name_insults = ["enter a name, not a book", "nope, too long", "you know what a name is, right?", "do you want to play the game or type all day?", "stop spazzing, start holding backspace"]
 too_short_name_insults = ["that's not a name", "nope", "you have a name, right?", "try again", "just push some buttons"]
@@ -211,6 +225,7 @@ small_font = pygame.font.SysFont(None, 30, bold=False)
 medium_font = pygame.font.SysFont(None, 50, bold=False)
 big_font = pygame.font.SysFont(None, 60, bold=False)
 huge_font = pygame.font.SysFont(None, 80, bold=True)
+sprite_size = 192
 clock = pygame.time.Clock()
 width = pygame.display.Info().current_w
 height = pygame.display.Info().current_h - 50
@@ -263,8 +278,6 @@ while running == True:
                         if file1["name"] != "empty":
                             game_data = file1
                             game_state = "exploring"
-                            worldx = game_data["worldx"]
-                            worldy = game_data["worldy"]
                             player = character(*tuple(game_data["player"].values()))
                             if game_data["area"] == "city":
                                 background = city_background
@@ -276,12 +289,11 @@ while running == True:
                             if player.race == "dwarf":
                                 player_sprite = dwarf
                             spawn_npc()
+                            pygame.mixer.music.play(-1)
                     if mouse_pos[0] < file2_button.right and mouse_pos[0] > file2_button.left and mouse_pos[1] > file2_button.top and mouse_pos[1] < file2_button.bottom:
                         if file2["name"] != "empty":
                             game_data = file2
                             game_state = "exploring"
-                            worldx = game_data["worldx"]
-                            worldy = game_data["worldy"]
                             player = character(*tuple(game_data["player"].values()))
                             if game_data["area"] == "city":
                                 background = city_background
@@ -293,16 +305,18 @@ while running == True:
                             if player.race == "dwarf":
                                 player_sprite = dwarf
                             spawn_npc()
+                            pygame.mixer.music.play(-1)
                     if mouse_pos[0] < file3_button.right and mouse_pos[0] > file3_button.left and mouse_pos[1] > file3_button.top and mouse_pos[1] < file3_button.bottom:
                         if file3["name"] != "empty":
                             game_data = file3
                             game_state = "exploring"
-                            worldx = game_data["worldx"]
-                            worldy = game_data["worldy"]
                             player = character(*tuple(game_data["player"].values()))
                             if game_data["area"] == "city":
                                 background = city_background
                                 current_map = city_map
+                            elif game_data["area"] == "castle":
+                                background = castle_background
+                                current_map = castle_map
                             if player.race == "human":
                                 player_sprite = human
                             elif player.race == "elf":
@@ -310,6 +324,7 @@ while running == True:
                             elif player.race == "dwarf":
                                 player_sprite = dwarf
                             spawn_npc()
+                            pygame.mixer.music.play(-1)
                 elif game_state == "choose name":
                     if mouse_pos[0] < submit_button.right and mouse_pos[0] > submit_button.left and mouse_pos[1] > submit_button.top and mouse_pos[1] < submit_button.bottom:
                         submit_input(user_input)
@@ -367,11 +382,12 @@ while running == True:
                 elif game_state == "intro":
                     if mouse_pos[0] < continue_button.right and mouse_pos[0] > continue_button.left and mouse_pos[1] > continue_button.top and mouse_pos[1] < continue_button.bottom:
                         spawn_npc()
-                        worldx = 3300
-                        worldy = 5000
+                        game_data["worldx"] = 3300
+                        game_data["worldy"] = 5000
                         game_data["area"] = "city"
                         current_map = city_map
                         background = city_background
+                        pygame.mixer.music.play(-1)
                         game_state = "exploring"
                 elif game_state == "exploring":
                     if paused == True:
@@ -435,10 +451,20 @@ while running == True:
                     else:
                         if talking == False:
                             for NPC in npc_list:
-                                npc_rect = pygame.Rect(NPC.x - worldx, NPC.y - worldy, 192, 192)
+                                npc_rect = pygame.Rect(NPC.x - game_data["worldx"], NPC.y - game_data["worldy"], 192, 192)
                                 if mouse_pos[0] < npc_rect.right and mouse_pos[0] > npc_rect.left and mouse_pos[1] > npc_rect.top and mouse_pos[1] < npc_rect.bottom:
                                     talking = True
                                     npc_words = random.sample(NPC.words, 1)
+                            try:
+                                if mouse_pos[0] < castle_door.right and mouse_pos[0] > castle_door.left and mouse_pos[1] > castle_door.top and mouse_pos[1] < castle_door.bottom:
+                                    game_data["area"] = "castle"
+                                    game_data["worldx"] = 100
+                                    game_data["worldy"] = 500
+                                    current_map = castle_map
+                                    background = castle_background
+                                    npc_list = []
+                            except NameError:
+                                pass
                         else:
                             talking = False
         if event.type == pygame.KEYDOWN:
@@ -633,55 +659,55 @@ while running == True:
         screen.blit(text, (continue_button.x, continue_button.y + (continue_button.height/2 - 17)))
     elif game_state == "exploring":
         keys = pygame.key.get_pressed()
-        old_worldx = worldx
-        old_worldy = worldy
+        old_worldx = game_data["worldx"]
+        old_worldy = game_data["worldy"]
         if paused == False and talking == False:
             for NPC in npc_list:
                 NPC.imagex += 5
                 if NPC.imagex >= 1344:
                     NPC.imagex = 0
-                number = random.randint(1, 50)
+                number = random.randint(1, 100)
                 if number == 1:
                     NPC.direction = "north"
-                    if NPC.imagey <= 576:
-                        NPC.imagey = 192
-                    elif NPC.imagey <= 1152:
-                        NPC.imagey = 960
-                    elif NPC.imagey <= 1344:
-                        NPC.imagey = 1728
+                    if NPC.imagey < sprite_size * 4:
+                        NPC.imagey = sprite_size
+                    elif NPC.imagey < sprite_size * 8:
+                        NPC.imagey = sprite_size * 5 
+                    elif NPC.imagey < sprite_size * 12:
+                        NPC.imagey = sprite_size * 9
                     else:
-                        NPC.imagey = 2496
+                        NPC.imagey = sprite_size * 13
                 elif number == 2:
                     NPC.direction = "east"
-                    if NPC.imagey <= 576:
-                        NPC.imagey = 384
-                    elif NPC.imagey <= 1152:
-                        NPC.imagey = 1152
-                    elif NPC.imagey <= 1344:
-                        NPC.imagey = 1920
+                    if NPC.imagey < sprite_size * 4:
+                        NPC.imagey = sprite_size * 2
+                    elif NPC.imagey < sprite_size * 8:
+                        NPC.imagey = sprite_size * 6
+                    elif NPC.imagey < sprite_size * 12:
+                        NPC.imagey = sprite_size * 10
                     else:
-                        NPC.imagey = 1688
+                        NPC.imagey = sprite_size * 14
                 elif number == 3:
                     NPC.direction = "west"
-                    if NPC.imagey <= 576:
-                        NPC.imagey = 576
-                    elif NPC.imagey <= 1152:
-                        NPC.imagey = 1344
-                    elif NPC.imagey <= 1344:
-                        NPC.imagey = 2112
+                    if NPC.imagey < sprite_size * 4:
+                        NPC.imagey = sprite_size * 3
+                    elif NPC.imagey < sprite_size * 8:
+                        NPC.imagey = sprite_size * 7
+                    elif NPC.imagey < sprite_size * 12:
+                        NPC.imagey = sprite_size * 12
                     else:
-                        NPC.imagey = 1880
+                        NPC.imagey = sprite_size * 15
                 elif number == 4:
                     NPC.direction = "south"
-                    if NPC.imagey <= 576:
+                    if NPC.imagey < sprite_size * 4:
                         NPC.imagey = 0
-                    elif NPC.imagey <= 1152:
-                        NPC.imagey = 768
-                    elif NPC.imagey <= 1344:
-                        NPC.imagey = 1537
+                    elif NPC.imagey < sprite_size * 8:
+                        NPC.imagey = sprite_size * 4
+                    elif NPC.imagey < sprite_size * 12:
+                        NPC.imagey = sprite_size * 9
                     else:
-                        NPC.imagey = 2304
-                elif number < 30:
+                        NPC.imagey = sprite_size * 12
+                elif number < 80:
                     NPC.imagex = 0
                 else:
                     old_npc_x = NPC.x
@@ -701,9 +727,9 @@ while running == True:
                         player_imagex += 50
                     else:
                         player_imagex = 0
-                    worldy -= 10
+                    game_data["worldy"] -= 10
                     if keys[K_a] == False and keys[K_s] == False and keys[K_d] == False and collision == False:
-                        worldy -= 4
+                        game_data["worldy"] -= 4
             if keys[K_a] == True:
                 if collision == False:
                     player_imagey = 576
@@ -711,9 +737,9 @@ while running == True:
                         player_imagex += 50
                     else:
                         player_imagex = 0
-                    worldx -= 10
+                    game_data["worldx"] -= 10
                     if keys[K_w] == False and keys[K_s] == False and keys[K_d] == False and collision == False:
-                        worldx -= 4
+                        game_data["worldx"] -= 4
             if keys[K_s] == True:
                 if collision == False:
                     player_imagey = 0
@@ -721,9 +747,9 @@ while running == True:
                         player_imagex += 50
                     else:
                         player_imagex = 0
-                    worldy += 10
+                    game_data["worldy"] += 10
                     if keys[K_a] == False and keys[K_w] == False and keys[K_d] == False and collision == False:
-                        worldy += 4
+                        game_data["worldy"] += 4
             if keys[K_d] == True:
                 if collision == False:
                     player_imagey = 384
@@ -731,34 +757,58 @@ while running == True:
                         player_imagex += 50
                     else:
                         player_imagex = 0
-                    worldx += 10
+                    game_data["worldx"] += 10
                     if keys[K_a] == False and keys[K_s] == False and keys[K_w] == False and collision == False:
-                        worldx += 4
+                        game_data["worldx"] += 4
             if keys[K_w] == False and keys[K_a] == False and keys[K_s] == False and keys[K_d] == False:
                 player_imagex = 0
-        screen.blit(background, (0, 0), area=(worldx, worldy, width, height))
+        screen.blit(background, (0, 0), area=(game_data["worldx"], game_data["worldy"], width, height))
         for NPC in npc_list:
-            screen.blit(npc, (NPC.x - worldx, NPC.y - worldy), area=(192*round(NPC.imagex/192), NPC.imagey, 192, 192))
+            screen.blit(npc, (NPC.x - game_data["worldx"], NPC.y - game_data["worldy"]), area=(192*round(NPC.imagex/192), NPC.imagey, 192, 192))
         screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
         screen_objects = {}
         for obstacle in current_map.keys():
             obstacle_rect = pygame.Rect(obstacle)
             if current_map[obstacle] == "wall":
-                screen_object_rect = pygame.draw.rect(screen, pygame.Color(150, 150, 150), (obstacle_rect.x - worldx + (width/2), obstacle_rect.y - worldy + (height/2), obstacle_rect.width, obstacle_rect.height))
+                screen_object_rect = pygame.draw.rect(screen, pygame.Color(150, 150, 150), (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2), obstacle_rect.width, obstacle_rect.height))
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "wall"
                 if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
             elif current_map[obstacle] == "house":
-                screen_object_rect = screen.blit(objects, (obstacle_rect.x - worldx + (width/2), obstacle_rect.y - worldy + (height/2)), area=(0, 0, 768, 768))
+                screen_object_rect = screen.blit(objects, (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2)), area=(0, 0, 768, 768))
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "house"
                 if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
             elif current_map[obstacle] == "building":
-                screen_object_rect = screen.blit(objects, (obstacle_rect.x - worldx + (width/2), obstacle_rect.y - worldy + (height/2)), area=(768, 0, 768, 768))
+                screen_object_rect = screen.blit(objects, (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2)), area=(768, 0, 768, 768))
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "building"
+                if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
+                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
+            elif current_map[obstacle] == "castle":
+                screen_object_rect = pygame.Rect(game_data["worldx"] - obstacle_rect.x, game_data["worldy"], obstacle_rect.width, obstacle_rect.height)
+                vertical_wall_tiles = obstacle_rect.width // 192
+                horizontal_wall_tiles = obstacle_rect.height // 192
+                screen.blit(castle_image, (obstacle_rect.x - game_data["worldx"] - (width // 2), obstacle_rect.y - game_data["worldy"] - (width // 2)), area=(384, 0, 192, 192)) #bottom northwest tower
+                screen.blit(castle_image, (obstacle_rect.x + obstacle_rect.width - 192 - game_data["worldx"] - (width // 2), obstacle_rect.y - game_data["worldy"] - (width // 2)), area=(384, 0, 192, 192)) #bottom northeast tower
+                for tiles in range(horizontal_wall_tiles):
+                    screen.blit(castle_image, (obstacle_rect.x + (tiles * 192) - game_data["worldx"] - (width // 2), obstacle_rect.y - game_data["worldy"] - (width // 2)), area=(0, 0, 192, 192))
+                    screen.blit(castle_image, (obstacle_rect.x + (tiles * 192) - game_data["worldx"] - (width // 2) + obstacle_rect.width - 192, obstacle_rect.y - game_data["worldy"] - (width // 2) + obstacle_rect.height - 192), area=(0, 0, 192, 192))
+                for tiles in range(vertical_wall_tiles):
+                    screen.blit(castle_image, (obstacle_rect.x - game_data["worldx"] - (width // 2), obstacle_rect.y + (tiles * 192) - game_data["worldy"] - (width // 2)), area=(192, 0, 192, 192))
+                    screen.blit(castle_image, (obstacle_rect.x + (tiles * 192) - game_data["worldx"] - (width // 2) + obstacle_rect.width - 192, obstacle_rect.y - game_data["worldy"] - (width // 2) + obstacle_rect.height - 192), area=(192, 0, 192, 192))
+                screen.blit(castle_image, (obstacle_rect.x - game_data["worldx"] - (width // 2), obstacle_rect.y + obstacle_rect.height - 192 - game_data["worldy"] - (width // 2)), area=(384, 0, 192, 192)) #bottom southwest tower
+                screen.blit(castle_image, (obstacle_rect.x + obstacle_rect.width - 192 - game_data["worldx"] - (width // 2), obstacle_rect.y + obstacle_rect.height - 192 - game_data["worldy"] - (width // 2)), area=(384, 0, 192, 192)) #bottom southeast tower
+## tops of the towers:
+                screen.blit(castle_image, (obstacle_rect.x - game_data["worldx"] - (width // 2), obstacle_rect.y - 192 - game_data["worldy"] - (width // 2)), area=(576, 0, 192, 192))
+                screen.blit(castle_image, (obstacle_rect.x + obstacle_rect.width - 384 - game_data["worldx"] - (width // 2), obstacle_rect.y - game_data["worldy"] - (width // 2)), area=(576, 0, 192, 192))
+                screen.blit(castle_image, (obstacle_rect.x - game_data["worldx"] - (width // 2), obstacle_rect.y + obstacle_rect.height - game_data["worldy"] - (width // 2)), area=(576, 0, 192, 192))
+                screen.blit(castle_image, (obstacle_rect.x + obstacle_rect.width - 192 - game_data["worldx"] - (width // 2), obstacle_rect.y + obstacle_rect.height - 384 - game_data["worldy"] - (width // 2)), area=(576, 0, 192, 192))
+                castle_door = screen.blit(castle_image, (obstacle_rect.x + obstacle_rect.height // 2 - game_data["worldx"] - (width // 2), obstacle_rect.bottom - game_data["worldy"] - (height // 2)), area=(768, 0, 192, 192))
+                screen_object = tuple(screen_object_rect)
+                screen_objects[screen_object] = "castle"
                 if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
         for obstacle in screen_objects.keys():
@@ -767,7 +817,7 @@ while running == True:
             elif screen_objects[obstacle] == "building":
                 new_obstacle_rect = pygame.Rect(obstacle[0] + 200, (obstacle[1] + obstacle[3]) - 50, obstacle[2] // 3, 100)
             else:
-                new_obstacle_rect = pygame.Rect(obstacle)
+                new_obstacle_rect = pygame.Rect(obstacle[0], obstacle[1], obstacle[2] - 50, obstacle[3] - 10)
             if player_rect.colliderect(pygame.Rect(obstacle)):
                 if screen_objects[obstacle] == "house" or screen_objects[obstacle] == "building":
                     if player_rect.colliderect(new_obstacle_rect):
@@ -775,8 +825,8 @@ while running == True:
                             pass
                         else:
                             collision = True
-                            worldx = old_worldx
-                            worldy = old_worldy
+                            game_data["worldx"] = old_worldx
+                            game_data["worldy"] = old_worldy
                     if player_rect.bottom > new_obstacle_rect.top + 15 or player_rect.left > new_obstacle_rect.right:
                         screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
                 else:
@@ -784,24 +834,24 @@ while running == True:
                         if player_rect.bottom > new_obstacle_rect.top:
                             screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
                         collision = True
-                        worldx = old_worldx
-                        worldy = old_worldy
+                        game_data["worldx"] = old_worldx
+                        game_data["worldy"] = old_worldy
             for NPC in npc_list:
-                npc_rect = pygame.Rect(NPC.x - worldx + (width // 2), NPC.y - worldy + (height // 2), 192, 192)
+                npc_rect = pygame.Rect(NPC.x - game_data["worldx"] + (width // 2), NPC.y - game_data["worldy"] + (height // 2), 192, 192)
                 if npc_rect.colliderect(pygame.Rect(obstacle)):
                     if screen_objects[obstacle] == "house" or screen_objects[obstacle] == "building":
                         if npc_rect.colliderect(new_obstacle_rect):
                             if npc_rect.bottom >= new_obstacle_rect.bottom:
                                 pass
                             else:
-                                worldx = old_worldx
-                                worldy = old_worldy
+                                game_data["worldx"] = old_worldx
+                                game_data["worldy"] = old_worldy
                         if npc_rect.bottom > new_obstacle_rect.top + 15 or npc_rect.left > new_obstacle_rect.right:
-                            screen.blit(npc, ((width / 2) - 96, (height / 2) - 96), area=(192*round(NPC.imagex/192), NPC.imagey, 192, 192))
+                            screen.blit(npc, (game_data["worldx"] - NPC.x, game_data["worldy"] - NPC.y), area=(192*round(NPC.imagex/192), NPC.imagey, 192, 192))
                     else:
                         if npc_rect.colliderect(new_obstacle_rect):
                             if npc_rect.bottom > new_obstacle_rect.top:
-                                screen.blit(npc, ((width / 2) - 96, (height / 2) - 96), area=(192*round(NPC.imagex/192), NPC.imagey, 192, 192))
+                                screen.blit(npc, (game_data["worldx"] - NPC.x, game_data["worldy"] - NPC.y), area=(192*round(NPC.imagex/192), NPC.imagey, 192, 192))
                             NPC.x = old_npc_x
                             NPC.y = old_npc_y
                             number = random.randint(1, 4)
@@ -825,8 +875,6 @@ while running == True:
             text_rect.center = (width // 2, height - 150)
             screen.blit(text, text_rect)
             pygame.draw.polygon(screen, pygame.Color(100, 100, 100), (((width - 150) - offset, (height - 140)), ((width - 180) + offset, (height - 140)), ((width - 165), (height - 110) - offset)))
-        game_data["worldx"] = worldx
-        game_data["worldy"] = worldy
         collision = False
         if paused == True:
             if counter < 8:
