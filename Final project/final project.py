@@ -706,8 +706,8 @@ while running == True:
                                 selected = e
                         if selected == "player":
                             if mouse_pos[0] > width // 2 - size // 2 and mouse_pos[0] < ((width // 2) + size) - (size // 2) + size and mouse_pos[1] > height // 2 - size // 2 and mouse_pos[1] < ((height // 2) + size) - (size // 2) + size:
-                                possible_player_destinationx = (mouse_pos[0] + width // 2 - size // 2) // size
-                                possible_player_destinationy = (mouse_pos[1] + height // 2 - size // 2) // size
+                                possible_player_destinationx = mouse_pos[0] // size + (width // 2 - size // 2)
+                                possible_player_destinationy = mouse_pos[1] // size + (height // 2 - size // 2)
                                 if possible_player_destinationx > player_battlefieldx + (size // 10 * player.stats["movement"]) or possible_player_destinationx < player_battlefieldy - (size // 10 * player.stats["movement"]):
                                     pass
                                 else:
@@ -1487,30 +1487,32 @@ while running == True:
                     screen.blit(enemies, (e.x * (size // 10) + (width // 2 - size // 2), (e.y * (size // 10) + (height // 2 - size // 2))), area=(0, size // 10 * 2, size // 10, size // 10))
         if players_turn == True:
             text = medium_font.render("Player's Turn", False, pygame.Color(255, 255, 255))
-            if player_destinationy > player_battlefieldy:
-                player_battlefieldy += 5
-                player_imagex += 10
-                if player_imagex >= size // 10 * 8:
-                    player_imagex = 0
-                player_imagey = 192
-            elif player_destinationy < player_battlefieldy:
-                player_battlefieldy -= 5
-                player_imagex += 10
-                if player_imagex >= size // 10 * 8:
-                    player_imagex = 0
-                player_imagey = 0
-            elif player_destinationx < player_battlefieldx:
-                player_battlefieldx -= 5
-                player_imagex += 10
-                if player_imagex >= size // 10 * 8:
-                    player_imagex = 0
-                player_imagey = 384
-            elif player_destinationx > player_battlefieldx:
-                player_battlefieldx += 5
-                player_imagex += 10
-                if player_imagex >= size // 10 * 8:
-                    player_imagex = 0
-                player_imagey = 576
+##            if player_destinationy > player_battlefieldy:
+##                player_battlefieldy += 5
+##                player_imagex += 10
+##                if player_imagex >= size // 10 * 7:
+##                    player_imagex = 0
+##                player_imagey = 192
+##            elif player_destinationy < player_battlefieldy:
+##                player_battlefieldy -= 5
+##                player_imagex += 10
+##                if player_imagex >= size // 10 * 7:
+##                    player_imagex = 0
+##                player_imagey = 0
+##            elif player_destinationx < player_battlefieldx:
+##                player_battlefieldx -= 5
+##                player_imagex += 10
+##                if player_imagex >= size // 10 * 7:
+##                    player_imagex = 0
+##                player_imagey = 384
+##            elif player_destinationx > player_battlefieldx:
+##                player_battlefieldx += 5
+##                player_imagex += 10
+##                if player_imagex >= size // 10 * 7:
+##                    player_imagex = 0
+##                player_imagey = 576
+##            else:
+##                player_imagex = 0
         else:
             text = medium_font.render("Enemies Turn", False, pygame.Color(255, 255, 255))
         screen.blit(text, (width - 20 - text.get_rect().width, 30))
