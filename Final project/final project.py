@@ -753,7 +753,8 @@ while running == True:
                         player_imagey += 768
                         player_imagex = 0
                         picking_up_rock = True
-    mouse_pos = pygame.mouse.get_pos()
+    mousex, mousey = pygame.mouse.get_pos()
+    mouse_pos = (mousex * (width / screen_width), mousey * (height / screen_height))
     screen.fill(pygame.Color(0, 0, 0))
     if game_state == "menu":
         text = huge_font.render("Hounder", False, pygame.Color(255, 255, 255))
@@ -1125,13 +1126,13 @@ while running == True:
                 screen_object_rect = screen.blit(objects, (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2)), area=(0, 0, 768, 768))
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "house"
-                if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
+                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
             elif current_map[obstacle] == "building":
                 screen_object_rect = screen.blit(objects, (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2)), area=(768, 0, 768, 768))
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "building"
-                if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
+                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
             elif current_map[obstacle] == "castle":
                 screen_object_rect = pygame.Rect(obstacle_rect.x - game_data["worldx"], obstacle_rect.y - game_data["worldy"], obstacle_rect.width, obstacle_rect.height)
@@ -1139,14 +1140,14 @@ while running == True:
                 screen_objects[screen_object] = "castle"
                 screen.blit(castle_image, (screen_object_rect.x, screen_object_rect.y))
                 screen.blit(doors, (screen_object_rect.x + (screen_object_rect.width // 2.5), screen_object_rect.bottom - 310), area=(384, 0, 384, 384)) # castle_door
-                if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
+                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
             elif current_map[obstacle] == "tree":
                 screen_object_rect = pygame.Rect(obstacle_rect.x - game_data["worldx"], obstacle_rect.y - game_data["worldy"], obstacle_rect.width, obstacle_rect.height)
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "tree"
                 screen.blit(objects, (screen_object_rect.x, screen_object_rect.y), area=(768, 0, 768, 768))
-                if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
+                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
         if game_data["area"] == "castle":
             screen.blit(doors, (city_door.x - game_data["worldx"], city_door.y - game_data["worldy"]), area=(384, 0, 384, 384)) # city_door
@@ -1563,7 +1564,7 @@ while running == True:
             screen.blit(text, text_rect)
             pygame.draw.polygon(screen, pygame.Color(100, 100, 100), (((width - 150) - offset, (height - 140)), ((width - 180) + offset, (height - 140)), ((width - 165), (height - 110) - offset)))
     window.blit(pygame.transform.scale(screen, (screen_width, screen_height)), (0, 0))
-    window.blit(mouse_pointer, mouse_pos)
+    window.blit(mouse_pointer, (mousex, mousey))
     pygame.display.update()
     clock.tick(32)
 pygame.quit()
