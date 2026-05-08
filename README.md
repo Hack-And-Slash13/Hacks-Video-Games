@@ -45,7 +45,7 @@ Bible Trivia Game is a trivia game about the bible (can you believe it?). It use
 
 ### Hounder
 
-Hounder is a tactics game, and it's not done yet.
+Hounder is a tactics game using pygame, and it's not done yet. You can download all the files seperatly, or you can download Hounder.png and rename it to .zip and unzip it if that's easier. The python file and all the game assets are in there.
 
 ### Note about the Game Assets
 
