@@ -11,7 +11,7 @@ def resource_path(filename):
     return os.path.join(base_path, filename)
 
 def reset():
-    global game_state, feedback, user_input, border, paused, player_imagex, player_imagey, collision, saving, loading, screen_objects, counter, talking, offset, cooldown, rock_list, holding_rock, picking_up_rock, king, looking_at_inventory, departing, enemy_list, rotated_npc, player_on_battlefield, rotation_counter, selected
+    global game_state, feedback, user_input, border, paused, player_imagex, player_imagey, collision, saving, loading, screen_objects, counter, talking, offset, cooldown, rock_list, holding_rock, picking_up_rock, king, looking_at_inventory, departing, enemy_list, rotated_npc, player_on_battlefield, rotation_counter, selected, mini_map
     game_state = "menu"
     feedback = ""
     user_input = ""
@@ -253,13 +253,18 @@ npc3_insults = {0: ["Yo!", "Sup?", "The castle's north, at the end of the road."
 npc4_insults = {0: ["The road's over there. Use it.", "I gotta go, I'm late for nap time.", "Looking for the castle? Just follow the road north.", "If the king sent for you, you'd better get to the castle.", "Don't you have somewhere to be?", "What do you want, peasant?", "Goodbye.", "You're actually allowed in the castle?!", "The sooner you get to the castle, the sooner you can stop hassling me."], 1: ["I gotta go, nap time.", "Hi", "The road's over there. Use it.", "Some monsters attacked my garden last night.", "I'll kill those little monsters next time they go near my garden!"]}
 city_background = pygame.image.load(resource_path("city_background.png"))
 city_background = pygame.transform.scale(city_background, (9000, 9000))
+city_mini_map = pygame.transform.scale(city_background.subsurface(0, 0, 8000, 8000), (175, 175))
 castle_background = pygame.image.load(resource_path("castle_background.png"))
 castle_background = pygame.transform.scale(castle_background, (4000, 4000))
+castle_mini_map = pygame.transform.scale(castle_background.subsurface(0, 0, 3000, 3000), (175, 175))
 objects = pygame.image.load(resource_path("objects.png"))
 objects = pygame.transform.scale(objects, (1536, 1536))
+mini_house = pygame.transform.scale(objects.subsurface(0, 0, 768, 768), (10, 10))
+mini_building = pygame.transform.scale(objects.subsurface(768, 0, 768, 768), (10, 10))
 doors = pygame.image.load(resource_path("doors.png"))
 doors = pygame.transform.scale(doors, (768, 384))
 castle_image = pygame.image.load(resource_path("castle.png"))
+mini_castle = pygame.transform.scale(castle_image, (20, 20))
 castle_image = pygame.transform.scale(castle_image, (1440, 1840))
 human = pygame.image.load(resource_path("human.png"))
 elf = pygame.image.load(resource_path("elf.png"))
@@ -275,6 +280,7 @@ enemies = pygame.image.load(resource_path("enemies.png"))
 mouse_pointer = pygame.image.load(resource_path("sword.png"))
 mouse_pointer = pygame.transform.rotate(mouse_pointer, 35)
 pygame.mixer.music.load(resource_path("exploring_song.wav"))
+rock_hits_npc = pygame.mixer.Sound(resource_path("rock_hits_npc.wav"))
 
 too_long_name_insults = ["enter a name, not a book", "nope, too long", "you know what a name is, right?", "do you want to play the game or type all day?", "stop spazzing, start holding backspace", "That's a computer, not a punching bag"]
 too_short_name_insults = ["that's not a name", "nope", "you have a name, right?", "try again", "just push some buttons", "try hitting a few keys, see what happens"]
@@ -306,6 +312,8 @@ reset()
 
 running = True
 while running == True:
+    mousex, mousey = pygame.mouse.get_pos()
+    mouse_pos = (mousex * (width / screen_width), mousey * (height / screen_height))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -694,6 +702,7 @@ while running == True:
                             current_map = city_map
                             player_imagex = 0
                             player_imagey = 192
+                            holding_rock = False
                             game_state = "exploring"
                             pygame.mixer.music.load(resource_path("exploring_song.wav"))
                             pygame.mixer.music.play(-1)
@@ -708,9 +717,7 @@ while running == True:
                             if mouse_pos[0] > width // 2 - size // 2 and mouse_pos[0] < ((width // 2) + size) - (size // 2) + size and mouse_pos[1] > height // 2 - size // 2 and mouse_pos[1] < ((height // 2) + size) - (size // 2) + size:
                                 possible_player_destinationx = mouse_pos[0] // size + (width // 2 - size // 2)
                                 possible_player_destinationy = mouse_pos[1] // size + (height // 2 - size // 2)
-                                if possible_player_destinationx > player_battlefieldx + (size // 10 * player.stats["movement"]) or possible_player_destinationx < player_battlefieldy - (size // 10 * player.stats["movement"]):
-                                    pass
-                                else:
+                                if possible_player_destinationx < player_battlefieldx + (size // 10 * player.stats["movement"]) and possible_player_destinationx > player_battlefieldy - (size // 10 * player.stats["movement"]):
                                     player_destinationx = possible_player_destinationx
                                     player_destinationy = possible_player_destinationy
                         if looking_at_inventory == True:
@@ -749,12 +756,10 @@ while running == True:
                             thrown_rock = rock(game_data["worldx"] + (width // 2) - 50, game_data["worldy"] + (height // 2), "west")
                         rock_list.append(thrown_rock)
                         holding_rock = False
-                    else:
+                    elif game_data["area"] == "city":
                         player_imagey += 768
                         player_imagex = 0
                         picking_up_rock = True
-    mousex, mousey = pygame.mouse.get_pos()
-    mouse_pos = (mousex * (width / screen_width), mousey * (height / screen_height))
     screen.fill(pygame.Color(0, 0, 0))
     if game_state == "menu":
         text = huge_font.render("Hounder", False, pygame.Color(255, 255, 255))
@@ -1088,13 +1093,17 @@ while running == True:
                 rock_rect = pygame.draw.circle(screen, pygame.Color(200, 200, 200), (rocks.x - game_data["worldx"], rocks.y - game_data["worldy"]), 5)
                 for obstacle in screen_objects.keys():
                     if rock_rect.colliderect(pygame.Rect(obstacle)):
-                        rock_list.remove(rocks)
+                        try:
+                            rock_list.remove(rocks)
+                        except ValueError:
+                            pass
                 for target in npc_list[:]:
                     if rock_rect.colliderect(pygame.Rect(target.x - game_data["worldx"], target.y - game_data["worldy"], 192, 192)):
                         rock_list.remove(rocks)
                         target.direction = rocks.direction
                         rotation_counter = 0
                         target.alive = False
+                        rock_hits_npc.play()
         for NPC in npc_list[:]:
             if NPC.alive == True:
                 screen.blit(npc, (NPC.x - game_data["worldx"], NPC.y - game_data["worldy"]), area=(192*round(NPC.imagex/192), NPC.imagey, 192, 192))
@@ -1113,6 +1122,8 @@ while running == True:
                 pygame.draw.circle(screen, pygame.Color(200, 200, 200), (width // 2 + 30, height // 2), 5)
             elif player_imagey == 576:
                 pygame.draw.circle(screen, pygame.Color(200, 200, 200), (width // 2 - 30, height // 2), 5)
+        city_mini_map = pygame.transform.scale(city_background.subsurface(0, 0, 8000, 8000), (175, 175))
+        castle_mini_map = pygame.transform.scale(castle_background.subsurface(0, 0, 3000, 3000), (175, 175))
         screen_objects = {}
         for obstacle in current_map.keys():
             obstacle_rect = pygame.Rect(obstacle)
@@ -1128,12 +1139,14 @@ while running == True:
                 screen_objects[screen_object] = "house"
                 if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
+                city_mini_map.blit(mini_house, (obstacle_rect.x / 8000 * 175, obstacle_rect.y / 8000 * 175))
             elif current_map[obstacle] == "building":
                 screen_object_rect = screen.blit(objects, (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2)), area=(768, 0, 768, 768))
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "building"
                 if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
+                city_mini_map.blit(mini_building, (obstacle_rect.x / 8000 * 175, obstacle_rect.y / 8000 * 175))
             elif current_map[obstacle] == "castle":
                 screen_object_rect = pygame.Rect(obstacle_rect.x - game_data["worldx"], obstacle_rect.y - game_data["worldy"], obstacle_rect.width, obstacle_rect.height)
                 screen_object = tuple(screen_object_rect)
@@ -1142,6 +1155,7 @@ while running == True:
                 screen.blit(doors, (screen_object_rect.x + (screen_object_rect.width // 2.5), screen_object_rect.bottom - 310), area=(384, 0, 384, 384)) # castle_door
                 if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
+                city_mini_map.blit(mini_castle, (obstacle_rect.x / 8000 * 175, obstacle_rect.y / 8000 * 175))
             elif current_map[obstacle] == "tree":
                 screen_object_rect = pygame.Rect(obstacle_rect.x - game_data["worldx"], obstacle_rect.y - game_data["worldy"], obstacle_rect.width, obstacle_rect.height)
                 screen_object = tuple(screen_object_rect)
@@ -1215,6 +1229,18 @@ while running == True:
             game_data["worldx"] = old_worldx
             game_data["worldy"] = old_worldy
         collision = False
+        if loading == False and saving == False and looking_at_inventory == False:
+            pygame.draw.rect(screen, pygame.Color(0, 0, 0), (width - 195, height - 220, 300, 300))
+            text = small_font.render("map", False, pygame.Color(255, 255, 255))
+            text_rect = text.get_rect()
+            text_rect.center = (width - 100, height - 210)
+            screen.blit(text, text_rect)
+            if game_data["area"] == "city":
+                pygame.draw.circle(city_mini_map, pygame.Color(0, 0, 0), ((game_data["worldx"] + width / 2) / 8000 * 175, (game_data["worldy"] + height / 2) / 8000 * 175), 2)
+                screen.blit(city_mini_map, (width - 185, height - 200))
+            else:
+                pygame.draw.circle(castle_mini_map, ((game_data["worldx"] + width / 2) / 8000 * 175, (game_data["worldy"] + height / 2) / 8000 * 175), 2)
+                screen.blit(castle_mini_map, pygame.Color(0, 0, 0), (width - 185, height - 200))
         if paused == True:
             if counter < 8:
                 counter += 1
