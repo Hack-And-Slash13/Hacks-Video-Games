@@ -11,7 +11,7 @@ def resource_path(filename):
     return os.path.join(base_path, filename)
 
 def reset():
-    global game_state, feedback, user_input, border, paused, player_imagex, player_imagey, collision, saving, loading, screen_objects, counter, talking, offset, cooldown, rock_list, holding_rock, picking_up_rock, king, looking_at_inventory, departing, enemy_list, rotated_npc, player_on_battlefield, rotation_counter, selected, mini_map
+    global game_state, feedback, user_input, border, paused, player_imagex, player_imagey, collision, saving, loading, screen_objects, counter, talking, offset, cooldown, rock_list, holding_rock, picking_up_rock, king, looking_at_inventory, departing, enemy_list, rotated_npc, player_on_battlefield, rotation_counter, selected, mini_map, grid, looking_at_stats, scream_counter
     game_state = "menu"
     feedback = ""
     user_input = ""
@@ -37,6 +37,8 @@ def reset():
     player_on_battlefield = pygame.Rect(0, 0, 0, 0)
     rotation_counter = 0
     selected = None
+    grid = []
+    looking_at_stats = False
 
 def save(data, name, folder=None):
     if folder != None:
@@ -182,6 +184,58 @@ def spawn_npc():
                 imagey = 2304
         new_npc = NPC_class(x, y, 0, imagey, random.randint(3, 5), direction, words)
         npc_list.append(new_npc)
+
+def stats():
+    global player, back_button
+    screen.fill(pygame.Color(200, 200, 200))
+    text = big_font.render(f"name: {player.name}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 20))
+    if player.race == "human":
+        screen.blit(human, (width // 8, 70), area=(0, 0, 192, 192))
+    elif player.race == "elf":
+        screen.blit(elf, (width // 8, 70), area=(0, 0, 192, 192))
+    elif player.race == "dwarf":
+        screen.blit(dwarf, (width // 8, 70), area=(0, 0, 192, 192))
+    text = medium_font.render(f"race: {player.race}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 282))
+    text = medium_font.render(f"class: {player.Class}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 332))
+    text = medium_font.render(f"level {player.level}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 382))
+    text = medium_font.render(f"health: {player.health}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 432))
+    text = medium_font.render(f"attack: {player.stats['attack']}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 482))
+    text = medium_font.render(f"defense: {player.stats['defense']}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 532))
+    text = medium_font.render(f"accuracy: {player.stats['accuracy']}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 582))
+    text = medium_font.render(f"avoidance: {player.stats['avoidance']}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 632))
+    text = medium_font.render(f"magic: {player.stats['magic']}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 682))
+    text = medium_font.render(f"resistance: {player.stats['resistance']}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width // 8, 732))
+    text = big_font.render("inventory", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width *.75, 20))
+    text = medium_font.render(f"gold: {player.gold}", False, pygame.Color(255, 255, 255))
+    screen.blit(text, (width *.75, 70))
+    for item in player.inventory:
+        if item == player.armor_equiped or item == player.weapon_equiped or item == player.accessory_equiped:
+            text = medium_font.render(f"{item} E", False, pygame.Color(255, 255, 255))
+        else:
+            text = medium_font.render(f"{item}", False, pygame.Color(255, 255, 255))
+        screen.blit(text, (width * .75, 70 + (player.inventory.index(item) + 1) * 50))
+    text = medium_font.render("back", False, pygame.Color(255, 255, 255))
+    back_button = text.get_rect()
+    back_button.center = (50, height - 75)
+    back_button.width += 50
+    back_button.height += 20
+    if mouse_pos[0] < back_button.right and mouse_pos[0] > back_button.left and mouse_pos[1] > back_button.top and mouse_pos[1] < back_button.bottom:
+        back_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), back_button)
+    else:
+        back_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), back_button)
+    screen.blit(text, (back_button.x + 25, back_button.y + 10))
 
 class NPC_class():
     def __init__(self, x, y, imagex, imagey, speed, direction, words):
@@ -423,13 +477,13 @@ while running == True:
                     if mouse_pos[0] < human_button.right and mouse_pos[0] > human_button.left and mouse_pos[1] > human_button.top and mouse_pos[1] < human_button.bottom:
                         player.race = "human"
                         player_sprite = human
-                        player.stats = {"attack": 10, "defense": 10, "accuracy": 10, "avoidance": 10, "magic": 10, "resistance": 10, "movement": 2}
+                        player.stats = {"attack": 10, "defense": 10, "accuracy": 10, "avoidance": 10, "magic": 10, "resistance": 10, "movement": 1}
                         game_state = "choose class"
                     elif mouse_pos[0] < elf_button.right and mouse_pos[0] > elf_button.left and mouse_pos[1] > elf_button.top and mouse_pos[1] < elf_button.bottom:
                         player.race = "elf"
                         player_sprite = elf
                         game_state = "choose class"
-                        player.stats = {"attack": 8, "defense": 8, "accuracy": 12, "avoidance": 10, "magic": 12, "resistance": 12, "movement": 3}
+                        player.stats = {"attack": 8, "defense": 8, "accuracy": 12, "avoidance": 10, "magic": 12, "resistance": 12, "movement": 1}
                     elif mouse_pos[0] < dwarf_button.right and mouse_pos[0] > dwarf_button.left and mouse_pos[1] > dwarf_button.top and mouse_pos[1] < dwarf_button.bottom:
                         player.race = "dwarf"
                         player_sprite = dwarf
@@ -657,7 +711,9 @@ while running == True:
                                             npc_words = ["You must kill all the monsters to win the battle."]
                                             talking = True
                                         departing = False
+                                        destination_rect = None
                                         item_buttons = []
+                                        grid = []
                                         pygame.mixer.music.load(resource_path("battle_song.wav"))
                                         pygame.mixer.music.play(-1)
                                         players_turn = True
@@ -688,7 +744,7 @@ while running == True:
                     if talking == True:
                         if npc_words == ["You must kill all the monsters to win the battle."]:
                             npc_words = ["Click the player to move around and attack"]
-                        elif npc_words == ["Click the player to move around and attack"]:
+                        elif npc_words == ["Click the player to move around and right click to attack"]:
                             npc_words = ["Click the items button to use your items"]
                         elif npc_words == ["Click the items button to use your items"]:
                             npc_words = ["You can throw pets and they'll fight for you (like that dog the king gave you)"]
@@ -697,37 +753,48 @@ while running == True:
                         else:
                             talking = False
                     else:
-                        if mouse_pos[0] < retreat_button.right and mouse_pos[0] > retreat_button.left and mouse_pos[1] > retreat_button.top and mouse_pos[1] < retreat_button.bottom and looking_at_inventory == False and players_turn == True:
-                            background = city_background
-                            current_map = city_map
-                            player_imagex = 0
-                            player_imagey = 192
-                            holding_rock = False
-                            game_state = "exploring"
-                            pygame.mixer.music.load(resource_path("exploring_song.wav"))
-                            pygame.mixer.music.play(-1)
-                            departing = False
-                        if mouse_pos[0] < player_on_battlefield.right and mouse_pos[0] > player_on_battlefield.left and mouse_pos[1] > player_on_battlefield.top and mouse_pos[1] < player_on_battlefield.bottom:
-                            selected = "player"
-                        for e in enemy_list:
-                            enemy_rect = pygame.Rect(e.x * (size // 10) + (width // 2 - size // 2), e.y * (size // 10) + (height // 2 - size // 2), size // 10, size // 10)
-                            if mouse_pos[0] < enemy_rect.right and mouse_pos[0] > enemy_rect.left and mouse_pos[1] > enemy_rect.top and mouse_pos[1] < enemy_rect.bottom:
-                                selected = e
-                        if selected == "player":
-                            if mouse_pos[0] > width // 2 - size // 2 and mouse_pos[0] < ((width // 2) + size) - (size // 2) + size and mouse_pos[1] > height // 2 - size // 2 and mouse_pos[1] < ((height // 2) + size) - (size // 2) + size:
-                                possible_player_destinationx = mouse_pos[0] // size + (width // 2 - size // 2)
-                                possible_player_destinationy = mouse_pos[1] // size + (height // 2 - size // 2)
-                                if possible_player_destinationx < player_battlefieldx + (size // 10 * player.stats["movement"]) and possible_player_destinationx > player_battlefieldy - (size // 10 * player.stats["movement"]):
-                                    player_destinationx = possible_player_destinationx
-                                    player_destinationy = possible_player_destinationy
-                        if looking_at_inventory == True:
-                            if mouse_pos[0] < back_button.right and mouse_pos[0] > back_button.left and mouse_pos[1] > back_button.top and mouse_pos[1] < back_button.bottom:
-                                item_buttons = []
-                                looking_at_inventory = False
-                        else:
-                            if mouse_pos[0] < items_button.right and mouse_pos[0] > items_button.left and mouse_pos[1] > items_button.top and mouse_pos[1] < items_button.bottom:
-                                item_buttons = []
-                                looking_at_inventory = True
+                        if players_turn == True:
+                            if mouse_pos[0] < retreat_button.right and mouse_pos[0] > retreat_button.left and mouse_pos[1] > retreat_button.top and mouse_pos[1] < retreat_button.bottom and looking_at_inventory == False and players_turn == True:
+                                background = city_background
+                                current_map = city_map
+                                player_imagex = 0
+                                player_imagey = 192
+                                holding_rock = False
+                                game_state = "exploring"
+                                pygame.mixer.music.load(resource_path("exploring_song.wav"))
+                                pygame.mixer.music.play(-1)
+                                departing = False
+                            if mouse_pos[0] < player_on_battlefield.right and mouse_pos[0] > player_on_battlefield.left and mouse_pos[1] > player_on_battlefield.top and mouse_pos[1] < player_on_battlefield.bottom:
+                                selected = "player"
+                            for e in enemy_list:
+                                enemy_rect = pygame.Rect(e.x * (size // 10) + (width // 2 - size // 2), e.y * (size // 10) + (height // 2 - size // 2), size // 10, size // 10)
+                                if mouse_pos[0] < enemy_rect.right and mouse_pos[0] > enemy_rect.left and mouse_pos[1] > enemy_rect.top and mouse_pos[1] < enemy_rect.bottom:
+                                    selected = e
+                            if selected == "player" and looking_at_inventory == False:
+                                for rect in grid:
+                                    if mouse_pos[0] < rect.right and mouse_pos[0] > rect.left and mouse_pos[1] > rect.top and mouse_pos[1] < rect.bottom:
+                                        destination_rect = rect
+                                        selected == None
+                            if looking_at_inventory == True:
+                                if mouse_pos[0] < back_button.right and mouse_pos[0] > back_button.left and mouse_pos[1] > back_button.top and mouse_pos[1] < back_button.bottom:
+                                    item_buttons = []
+                                    looking_at_inventory = False
+                            else:
+                                if mouse_pos[0] < items_button.right and mouse_pos[0] > items_button.left and mouse_pos[1] > items_button.top and mouse_pos[1] < items_button.bottom:
+                                    item_buttons = []
+                                    looking_at_inventory = True
+                                if mouse_pos[0] < stats_button.right and mouse_pos[0] > stats_button.left and mouse_pos[1] > stats_button.top and mouse_pos[1] < stats_button.bottom:
+                                    looking_at_stats = True
+                            if mouse_pos[0] < end_turn_button.right and mouse_pos[0] > end_turn_button.left and mouse_pos[1] > end_turn_button.top and mouse_pos[1] <end_turn_button.bottom:
+                                selected = None
+                                players_turn = False
+                    if looking_at_stats == True:
+                        if mouse_pos[0] < back_button.right and mouse_pos[0] > back_button.left and mouse_pos[1] > back_button.top and mouse_pos[1] < back_button.bottom:
+                            grid = []
+                            selected = None
+                            destination_rect = None
+                            looking_at_stats = False
+                            game_state = "battle"
         if event.type == pygame.KEYDOWN:
             if game_state == "choose name":
                 if event.key == K_BACKSPACE:
@@ -1099,7 +1166,10 @@ while running == True:
                             pass
                 for target in npc_list[:]:
                     if rock_rect.colliderect(pygame.Rect(target.x - game_data["worldx"], target.y - game_data["worldy"], 192, 192)):
-                        rock_list.remove(rocks)
+                        try:
+                            rock_list.remove(rocks)
+                        except ValueError:
+                            pass
                         target.direction = rocks.direction
                         rotation_counter = 0
                         target.alive = False
@@ -1239,8 +1309,8 @@ while running == True:
                 pygame.draw.circle(city_mini_map, pygame.Color(0, 0, 0), ((game_data["worldx"] + width / 2) / 8000 * 175, (game_data["worldy"] + height / 2) / 8000 * 175), 2)
                 screen.blit(city_mini_map, (width - 185, height - 200))
             else:
-                pygame.draw.circle(castle_mini_map, ((game_data["worldx"] + width / 2) / 8000 * 175, (game_data["worldy"] + height / 2) / 8000 * 175), 2)
-                screen.blit(castle_mini_map, pygame.Color(0, 0, 0), (width - 185, height - 200))
+                pygame.draw.circle(castle_mini_map, pygame.Color(0, 0, 0), ((game_data["worldx"] + width / 2) / 8000 * 175, (game_data["worldy"] + height / 2) / 8000 * 175), 2)
+                screen.blit(castle_mini_map, (width - 185, height - 200))
         if paused == True:
             if counter < 8:
                 counter += 1
@@ -1343,55 +1413,7 @@ while running == True:
                 text_rect.center = (width/2, height - 100)
                 screen.blit(text, text_rect)
             elif looking_at_inventory == True:
-                screen.fill(pygame.Color(200, 200, 200))
-                text = big_font.render(f"name: {player.name}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 20))
-                if player.race == "human":
-                    screen.blit(human, (width // 8, 70), area=(0, 0, 192, 192))
-                elif player.race == "elf":
-                    screen.blit(elf, (width // 8, 70), area=(0, 0, 192, 192))
-                elif player.race == "dwarf":
-                    screen.blit(dwarf, (width // 8, 70), area=(0, 0, 192, 192))
-                text = medium_font.render(f"race: {player.race}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 282))
-                text = medium_font.render(f"class: {player.Class}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 332))
-                text = medium_font.render(f"level {player.level}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 382))
-                text = medium_font.render(f"health: {player.health}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 432))
-                text = medium_font.render(f"attack: {player.stats['attack']}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 482))
-                text = medium_font.render(f"defense: {player.stats['defense']}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 532))
-                text = medium_font.render(f"accuracy: {player.stats['accuracy']}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 582))
-                text = medium_font.render(f"avoidance: {player.stats['avoidance']}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 632))
-                text = medium_font.render(f"magic: {player.stats['magic']}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 682))
-                text = medium_font.render(f"resistance: {player.stats['resistance']}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width // 8, 732))
-                text = big_font.render("inventory", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width *.75, 20))
-                text = medium_font.render(f"gold: {player.gold}", False, pygame.Color(255, 255, 255))
-                screen.blit(text, (width *.75, 70))
-                for item in player.inventory:
-                    if item == player.armor_equiped or item == player.weapon_equiped or item == player.accessory_equiped:
-                        text = medium_font.render(f"{item} E", False, pygame.Color(255, 255, 255))
-                    else:
-                        text = medium_font.render(f"{item}", False, pygame.Color(255, 255, 255))
-                    screen.blit(text, (width * .75, 70 + (player.inventory.index(item) + 1) * 50))
-                text = medium_font.render("back", False, pygame.Color(255, 255, 255))
-                back_button = text.get_rect()
-                back_button.center = (50, height - 75)
-                back_button.width += 50
-                back_button.height += 20
-                if mouse_pos[0] < back_button.right and mouse_pos[0] > back_button.left and mouse_pos[1] > back_button.top and mouse_pos[1] < back_button.bottom:
-                    back_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), back_button)
-                else:
-                    back_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), back_button)
-                screen.blit(text, (back_button.x + 25, back_button.y + 10))
+                stats()
             else:
                 text = huge_font.render("Paused", False, pygame.Color(255, 255, 255))
                 text_rect = text.get_rect()
@@ -1457,126 +1479,149 @@ while running == True:
             size = height - 50
         else:
             size = width - 50
-        screen.blit(background, (width // 2 - size // 2, height // 2 - size // 2), area=(0, 0, size - 5, size - 5))
-        for rect in range(10):
-            for inside_rect in range(10):
-                rectangle = pygame.Rect(size // 10 * rect + (width // 2 - size // 2), size // 10 * inside_rect + (height // 2 - size // 2), size // 10, size // 10)
-                if mouse_pos[0] < rectangle.right and mouse_pos[0] > rectangle.left and mouse_pos[1] > rectangle.top and mouse_pos[1] < rectangle.bottom:
-                    pygame.draw.rect(screen, pygame.Color(0, 0, 0), rectangle, width = 1)
-                else:
-                    pygame.draw.rect(screen, pygame.Color(200, 200, 200), rectangle, width = 1)
-        if game_data["mission"] == 1:
-            text = medium_font.render("Mission 1 objective:", False, pygame.Color(255, 255, 255))
-            screen.blit(text, (20, 30))
-            text = medium_font.render("Rout all enemies", False, pygame.Color(255, 255, 255))
-            screen.blit(text, (20, 60))
-        text = medium_font.render("Enemies:", False, pygame.Color(255, 255, 255))
-        screen.blit(text, (20, 120))
-        for e in enemy_list:
-            if e.alive == True:
-                text = small_font.render(e.name, False, pygame.Color(255, 255, 255))
-                screen.blit(text, (20, 170 + enemy_list.index(e) * 30))
-        text = medium_font.render("retreat", False, pygame.Color(255, 255, 255))
-        retreat_button = text.get_rect()
-        retreat_button.center = (50, height - 75)
-        retreat_button.width += 50
-        retreat_button.height += 20
-        if mouse_pos[0] < retreat_button.right and mouse_pos[0] > retreat_button.left and mouse_pos[1] > retreat_button.top and mouse_pos[1] < retreat_button.bottom and talking == False:
-            retreat_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), retreat_button)
+        if looking_at_stats == True:
+            stats()
         else:
-            retreat_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), retreat_button)
-        screen.blit(text, (retreat_button.x + 25, retreat_button.y + 10))
-        text = medium_font.render("items", False, pygame.Color(255, 255, 255))
-        items_button = text.get_rect()
-        items_button.center = (width - (items_button.width + 50) // 2 - 50, height - 75)
-        items_button.width += 80
-        items_button.height += 20
-        if mouse_pos[0] < items_button.right and mouse_pos[0] > items_button.left and mouse_pos[1] > items_button.top and mouse_pos[1] < items_button.bottom and talking == False:
-            items_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), items_button)
-        else:
-            items_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), items_button)
-        screen.blit(text, (items_button.x + 25, items_button.y + 10))
-        if player.race == "human":
-            player_on_battlefield = screen.blit(small_human, (player_battlefieldx * (size // 10)  + (width // 2 - size // 2), player_battlefieldy * (size // 10) + (height // 2 - size // 2)), area=(player_imagex, player_imagey, size // 10, size // 10))
-        if player.race == "elf":
-            player_on_battlefield = screen.blit(small_elf, (player_battlefieldx * (size // 10)  + (width // 2 - size // 2), player_battlefieldy * (size // 10) + (height // 2 - size // 2)), area=(player_imagex, player_imagey, size // 10, size // 10))
-        if player.race == "dwarf":
-            player_on_battlefield = screen.blit(small_dwarf, (player_battlefieldx * (size // 10)  + (width // 2 - size // 2), player_battlefieldy * (size // 10) + (height // 2 - size // 2)), area=(player_imagex, player_imagey, size // 10, size // 10))
-        for e in enemy_list:
-            if e.name == "bunny":
-                if e.direction == "north":
-                    screen.blit(enemies, (e.x * (size // 10) + (width // 2 - size // 2), (e.y * (size // 10) + (height // 2 - size // 2))), area=(0, size // 10, size // 10, size // 10))
-                elif e.direction == "south":
-                    screen.blit(enemies, (e.x * (size // 10) + (width // 2 - size // 2), (e.y * (size // 10) + (height // 2 - size // 2))), area=(0, 0, size // 10, size // 10))
-                elif e.direction == "west":
-                    screen.blit(enemies, (e.x * (size // 10) + (width // 2 - size // 2), (e.y * (size // 10) + (height // 2 - size // 2))), area=(0, size // 10 * 3, size // 10, size // 10))
-                elif e.direction == "east":
-                    screen.blit(enemies, (e.x * (size // 10) + (width // 2 - size // 2), (e.y * (size // 10) + (height // 2 - size // 2))), area=(0, size // 10 * 2, size // 10, size // 10))
-        if players_turn == True:
-            text = medium_font.render("Player's Turn", False, pygame.Color(255, 255, 255))
-##            if player_destinationy > player_battlefieldy:
-##                player_battlefieldy += 5
-##                player_imagex += 10
-##                if player_imagex >= size // 10 * 7:
-##                    player_imagex = 0
-##                player_imagey = 192
-##            elif player_destinationy < player_battlefieldy:
-##                player_battlefieldy -= 5
-##                player_imagex += 10
-##                if player_imagex >= size // 10 * 7:
-##                    player_imagex = 0
-##                player_imagey = 0
-##            elif player_destinationx < player_battlefieldx:
-##                player_battlefieldx -= 5
-##                player_imagex += 10
-##                if player_imagex >= size // 10 * 7:
-##                    player_imagex = 0
-##                player_imagey = 384
-##            elif player_destinationx > player_battlefieldx:
-##                player_battlefieldx += 5
-##                player_imagex += 10
-##                if player_imagex >= size // 10 * 7:
-##                    player_imagex = 0
-##                player_imagey = 576
-##            else:
-##                player_imagex = 0
-        else:
-            text = medium_font.render("Enemies Turn", False, pygame.Color(255, 255, 255))
-        screen.blit(text, (width - 20 - text.get_rect().width, 30))
-        if selected != None:
-            if type(selected) == enemy:
-                text = medium_font.render(f"{selected.name} is selected", False, pygame.Color(255, 255, 255))
-            else:
-                text = medium_font.render(f"{selected} is selected", False, pygame.Color(255, 255, 255))
-            screen.blit(text, (width - 20 - text.get_rect().width, 80))
-        if looking_at_inventory == True:
-            pygame.draw.rect(screen, pygame.Color(200, 200, 200), ((width - (width // 4)) // 2, 150, width // 4, height * .75))
-            text = huge_font.render("items", False, pygame.Color(255, 255, 255))
-            text_rect = text.get_rect()
-            text_rect.center = (width // 2, 200)
-            screen.blit(text, text_rect)
-            for item in player.inventory:
-                try:
-                    if mouse_pos[0] < items_buttons[player.inventory.index(item) - 1].right and mouse_pos[0] > items_buttons[player.inventory.index(item) - 1].left and mouse_pos[1] > items_buttons[player.inventory.index(item) - 1].top and mouse_pos[1] < items_buttons[player.inventory.index(item) - 1].bottom:
-                        text = big_font.render(item, False, pygame.Color(0, 0, 0))
+            screen.blit(background, (width // 2 - size // 2, height // 2 - size // 2), area=(0, 0, size - 5, size - 5))
+            grid = []
+            for rect in range(10):
+                for inside_rect in range(10):
+                    rectangle = pygame.Rect(size // 10 * rect + (width // 2 - size // 2), size // 10 * inside_rect + (height // 2 - size // 2), size // 10, size // 10)
+                    if mouse_pos[0] < rectangle.right and mouse_pos[0] > rectangle.left and mouse_pos[1] > rectangle.top and mouse_pos[1] < rectangle.bottom:
+                        pygame.draw.rect(screen, pygame.Color(0, 0, 0), rectangle, width = 1)
                     else:
-                        text = big_font.render(item, False, pygame.Color(255, 255, 255))
-                except NameError:
-                    text = big_font.render(item, False, pygame.Color(255, 255, 255))
-                text_rect = text.get_rect()
-                text_rect.center = (width // 2, 300 + (player.inventory.index(item) - 1) * 40)
-                screen.blit(text, text_rect)
-                item_buttons.append(text_rect)
-            text = medium_font.render("back", False, pygame.Color(255, 255, 255))
-            back_button = text.get_rect()
-            back_button.center = (50, height - 75)
-            back_button.width += 50
-            back_button.height += 20
-            if mouse_pos[0] < back_button.right and mouse_pos[0] > back_button.left and mouse_pos[1] > back_button.top and mouse_pos[1] < back_button.bottom:
-                back_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), back_button)
+                        pygame.draw.rect(screen, pygame.Color(200, 200, 200), rectangle, width = 1)
+                    grid.append(rectangle)
+            if game_data["mission"] == 1:
+                text = medium_font.render("Mission 1 objective:", False, pygame.Color(255, 255, 255))
+                screen.blit(text, (20, 30))
+                text = medium_font.render("Rout all enemies", False, pygame.Color(255, 255, 255))
+                screen.blit(text, (20, 60))
+            text = medium_font.render("Enemies:", False, pygame.Color(255, 255, 255))
+            screen.blit(text, (20, 120))
+            for e in enemy_list:
+                if e.alive == True:
+                    text = small_font.render(e.name, False, pygame.Color(255, 255, 255))
+                    screen.blit(text, (20, 170 + enemy_list.index(e) * 30))
+            text = medium_font.render("retreat", False, pygame.Color(255, 255, 255))
+            retreat_button = text.get_rect()
+            retreat_button.center = (50, height - 75)
+            retreat_button.width += 50
+            retreat_button.height += 20
+            if mouse_pos[0] < retreat_button.right and mouse_pos[0] > retreat_button.left and mouse_pos[1] > retreat_button.top and mouse_pos[1] < retreat_button.bottom and talking == False and players_turn == True:
+                retreat_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), retreat_button)
             else:
-                back_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), back_button)
-            screen.blit(text, (back_button.x + 25, back_button.y + 10))
+                retreat_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), retreat_button)
+            screen.blit(text, (retreat_button.x + 25, retreat_button.y + 10))
+            text = medium_font.render("end turn", False, pygame.Color(255, 255, 255))
+            end_turn_button = text.get_rect()
+            end_turn_button.center = (width - (end_turn_button.width + 50) // 2 - 50, height - 75)
+            end_turn_button.width += 200
+            end_turn_button.height += 20
+            if mouse_pos[0] < end_turn_button.right and mouse_pos[0] > end_turn_button.left and mouse_pos[1] > end_turn_button.top and mouse_pos[1] < end_turn_button.bottom and talking == False and players_turn == True:
+                end_turn_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), end_turn_button)
+            else:
+                end_turn_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), end_turn_button)
+            screen.blit(text, (end_turn_button.x + 25, end_turn_button.y + 10))
+            text = medium_font.render("stats", False, pygame.Color(255, 255, 255))
+            stats_button = text.get_rect()
+            stats_button.left = end_turn_button.left
+            stats_button.bottom = end_turn_button.top - 50
+            stats_button.width += 200
+            stats_button.height += 20
+            if mouse_pos[0] < stats_button.right and mouse_pos[0] > stats_button.left and mouse_pos[1] > stats_button.top and mouse_pos[1] < stats_button.bottom and talking == False and players_turn == True:
+                stats_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), stats_button)
+            else:
+                stats_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), stats_button)
+            screen.blit(text, (stats_button.x + 25, stats_button.y + 10))
+            text = medium_font.render("items", False, pygame.Color(255, 255, 255))
+            items_button = text.get_rect()
+            items_button.left = end_turn_button.left
+            items_button.bottom = stats_button.top - 50
+            items_button.width += 200
+            items_button.height += 20
+            if mouse_pos[0] < items_button.right and mouse_pos[0] > items_button.left and mouse_pos[1] > items_button.top and mouse_pos[1] < items_button.bottom and talking == False and players_turn == True:
+                items_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), items_button)
+            else:
+                items_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), items_button)
+            screen.blit(text, (items_button.x + 25, items_button.y + 10))
+            if player.race == "human":
+                player_on_battlefield = screen.blit(small_human, (player_battlefieldx * (size // 10)  + (width // 2 - size // 2), player_battlefieldy * (size // 10) + (height // 2 - size // 2)), area=(size // 10*round(NPC.imagex/(size // 10)), player_imagey, size // 10, size // 10))
+            if player.race == "elf":
+                player_on_battlefield = screen.blit(small_elf, (player_battlefieldx * (size // 10)  + (width // 2 - size // 2), player_battlefieldy * (size // 10) + (height // 2 - size // 2)), area=(size // 10*round(NPC.imagex/(size // 10)), player_imagey, size // 10, size // 10))
+            if player.race == "dwarf":
+                player_on_battlefield = screen.blit(small_dwarf, (player_battlefieldx * (size // 10)  + (width // 2 - size // 2), player_battlefieldy * (size // 10) + (height // 2 - size // 2)), area=(size // 10*round(NPC.imagex/(size // 10)), player_imagey, size // 10, size // 10))
+            for e in enemy_list:
+                if e.name == "bunny":
+                    if e.direction == "north":
+                        screen.blit(enemies, (e.x * (size // 10) + (width // 2 - size // 2), (e.y * (size // 10) + (height // 2 - size // 2))), area=(0, size // 10, size // 10, size // 10))
+                    elif e.direction == "south":
+                        screen.blit(enemies, (e.x * (size // 10) + (width // 2 - size // 2), (e.y * (size // 10) + (height // 2 - size // 2))), area=(0, 0, size // 10, size // 10))
+                    elif e.direction == "west":
+                        screen.blit(enemies, (e.x * (size // 10) + (width // 2 - size // 2), (e.y * (size // 10) + (height // 2 - size // 2))), area=(0, size // 10 * 3, size // 10, size // 10))
+                    elif e.direction == "east":
+                        screen.blit(enemies, (e.x * (size // 10) + (width // 2 - size // 2), (e.y * (size // 10) + (height // 2 - size // 2))), area=(0, size // 10 * 2, size // 10, size // 10))
+            if players_turn == True:
+                text = medium_font.render("Player's Turn", False, pygame.Color(255, 255, 255))
+                if destination_rect != None:
+                    if player_imagex < 1344:
+                        player_imagex += 10
+                    else:
+                        player_imagex = 0
+                    if destination_rect.y > player_on_battlefield.top + 1:
+                        player_imagey = 0
+                        player_battlefieldy += .1
+                    elif destination_rect.bottom < player_on_battlefield.bottom:
+                        player_imagey = size // 10
+                        player_battlefieldy -= .1
+                    elif destination_rect.x > player_on_battlefield.left + 1:
+                        player_imagey = size // 10 * 2
+                        player_battlefieldx += .1
+                    elif destination_rect.right < player_on_battlefield.right:
+                        player_imagey = size // 10 * 3
+                        player_battlefieldx -= .1
+                    else:
+                        player_imagex = 0
+                        destination_rect = None
+                else:
+                    player_imagex = 0
+            else:
+                text = medium_font.render("Enemies Turn", False, pygame.Color(255, 255, 255))
+            screen.blit(text, (width - 20 - text.get_rect().width, 30))
+            if selected != None:
+                if type(selected) == enemy:
+                    text = medium_font.render(f"{selected.name} is selected", False, pygame.Color(255, 255, 255))
+                else:
+                    text = medium_font.render(f"{selected} is selected", False, pygame.Color(255, 255, 255))
+                screen.blit(text, (width - 20 - text.get_rect().width, 80))
+            if looking_at_inventory == True:
+                pygame.draw.rect(screen, pygame.Color(200, 200, 200), ((width - (width // 4)) // 2, 150, width // 4, height * .75))
+                text = huge_font.render("items", False, pygame.Color(255, 255, 255))
+                text_rect = text.get_rect()
+                text_rect.center = (width // 2, 200)
+                screen.blit(text, text_rect)
+                for item in player.inventory:
+                    try:
+                        if mouse_pos[0] < items_buttons[player.inventory.index(item) - 1].right and mouse_pos[0] > items_buttons[player.inventory.index(item) - 1].left and mouse_pos[1] > items_buttons[player.inventory.index(item) - 1].top and mouse_pos[1] < items_buttons[player.inventory.index(item) - 1].bottom:
+                            text = big_font.render(item, False, pygame.Color(0, 0, 0))
+                        else:
+                            text = big_font.render(item, False, pygame.Color(255, 255, 255))
+                    except NameError:
+                        text = big_font.render(item, False, pygame.Color(255, 255, 255))
+                    text_rect = text.get_rect()
+                    text_rect.center = (width // 2, 300 + (player.inventory.index(item) - 1) * 40)
+                    screen.blit(text, text_rect)
+                    item_buttons.append(text_rect)
+                text = medium_font.render("back", False, pygame.Color(255, 255, 255))
+                back_button = text.get_rect()
+                back_button.center = (50, height - 75)
+                back_button.width += 50
+                back_button.height += 20
+                if mouse_pos[0] < back_button.right and mouse_pos[0] > back_button.left and mouse_pos[1] > back_button.top and mouse_pos[1] < back_button.bottom:
+                    back_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), back_button)
+                else:
+                    back_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), back_button)
+                screen.blit(text, (back_button.x + 25, back_button.y + 10))
     if talking == True and paused == False and departing == False and (game_state == "exploring" or game_state == "battle"):
             if offset == 10:
                 difference = -1
