@@ -12,6 +12,7 @@ def resource_path(filename):
 
 def reset():
     global game_state, feedback, user_input, border, paused, player_imagex, player_imagey, collision, saving, loading, screen_objects, counter, talking, offset, cooldown, rock_list, holding_rock, picking_up_rock, king, enemy_list, rotated_npc, player_on_battlefield, rotation_counter, mini_map, departing, killcount
+    pygame.mixer.music.load(resource_path("exploring_song.wav"))
     game_state = "menu"
     feedback = ""
     user_input = ""
@@ -110,8 +111,28 @@ def draw_back_button():
 def spawn_enemy():
     global current_map, enemy_list, killcount
     for n in range(killcount + 2):
-        x = random.randint(100, 3500)
-        y = random.randint(200, 3500)
+        number = random.randint(1, 2)
+        if number == 1:
+            try:
+                x = random.randint(100, game_data["worldx"])
+            except:
+                x = random.randint(game_data["worldx"] + width, 3500)
+        else:
+            try:
+                x = random.randint(game_data["worldx"] + width, 3500)
+            except:
+                x = random.randint(100, game_data["worldx"])
+        number = random.randint(1, 2)
+        if number == 1:
+            try:
+                y = random.randint(500, game_data["worldy"])
+            except:
+                y = random.randint(game_data["worldy"] + height, 3500)
+        else:
+            try:
+                y = random.randint(game_data["worldy"] + height, 3500)
+            except:
+                y = random.randint(500, game_data["worldy"])
         while True:
             collision = False
             for thing in current_map.keys():
@@ -299,7 +320,6 @@ enemies = pygame.image.load(resource_path("enemies.png"))
 enemies = pygame.transform.scale(enemies, (1536, 768))
 mouse_pointer = pygame.image.load(resource_path("sword.png"))
 mouse_pointer = pygame.transform.rotate(mouse_pointer, 35)
-pygame.mixer.music.load(resource_path("exploring_song.wav"))
 rock_hits_npc = pygame.mixer.Sound(resource_path("rock_hits_npc.wav"))
 
 too_long_name_insults = ["enter a name, not a book", "nope, too long", "you know what a name is, right?", "do you want to play the game or type all day?", "stop spazzing, start holding backspace", "That's a computer, not a punching bag"]
@@ -1027,7 +1047,6 @@ while running == True:
                             talking = True
             for e in enemy_list:
                 if e.alive == True:
-##                    if e.x > game_data["worldx"] - width and e.x < game_data["worldx"] + width and e.y > -game_data["worldy"] - height and e.y < game_data["worldy"] + height:
                     if e.imagex > 1344:
                         e.imagex = 0
                     else:
@@ -1035,22 +1054,22 @@ while running == True:
                     if e.x < game_data["worldx"] + (width // 2) - 96:
                         e.x += 7
                         e.direction = "east"
-                        if e.imagey <= 576:
+                        if e.imagey <= 577:
                             e.imagey = 384
                     if e.x > game_data["worldx"] + (width // 2) - 96:
                         e.x -= 7
                         e.direction = "west"
-                        if e.imagey <= 576:
+                        if e.imagey <= 577:
                             e.imagey = 576
                     if e.y < game_data["worldy"] + (height // 2) - 96:
                         e.y += 7
                         e.direction = "south"
-                        if e.imagey <= 576:
+                        if e.imagey <= 577:
                             e.imagey = 0
                     if e.y > game_data["worldy"] + (height // 2) - 96:
                         e.y -= 7
                         e.direction = "north"
-                        if e.imagey <= 576:
+                        if e.imagey <= 577:
                             e.imagey = 192
                 else:
                     if e.direction == "north":
@@ -1075,10 +1094,12 @@ while running == True:
                 screen.blit(enemies, (e.x - game_data["worldx"], e.y - game_data["worldy"]), area=(192*round(e.imagex/192), e.imagey, 192, 192))
                 enemy_rect = pygame.Rect(e.x - game_data["worldx"], e.y - game_data["worldy"], 192, 192)
                 if enemy_rect.colliderect(player_rect):
+                    pygame.mixer.music.load(resource_path("womp-womp.mp3"))
+                    pygame.mixer.music.play(1)
                     game_state = "game over"
             else:
                 rotation_counter += 1
-                if e.imagey < 576:
+                if e.imagey <= 576:
                     e.rotated = enemies.subsurface((0, e.imagey, 192, 192))
                 e.rotated = pygame.transform.rotate(e.rotated, 20 * rotation_counter)
                 screen.blit(e.rotated, (e.x - game_data["worldx"], e.y - game_data["worldy"]))
@@ -1401,7 +1422,7 @@ while running == True:
         text_rect.center = (width // 2, height // 2 - 50)
         screen.blit(text, text_rect)
         try:
-            if mouse_pos[0] < level_5_button.right and mouse_pos[0] > level_5_button.left and mouse_pos[1] > level_5_button.top and mouse_pos[1] < level_5_button.bottom:
+            if mouse_pos[0] < reset_button.right and mouse_pos[0] > reset_button.left and mouse_pos[1] > reset_button.top and mouse_pos[1] < reset_button.bottom:
                 reset_button = draw_button("return to title screen", height // 2 + 50, pygame.Color(255, 0, 0), pygame.Color(180, 180, 180))
             else:
                 reset_button = draw_button("return to title screen", height // 2 + 50, pygame.Color(255, 0, 0), pygame.Color(150, 150, 150))
