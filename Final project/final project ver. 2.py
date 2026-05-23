@@ -111,7 +111,10 @@ def draw_back_button():
 
 def spawn_enemy():
     global current_map, enemy_list, killcount
-    enemies_to_spawn = killcount // 7 + 2
+    if game_data["mission"] == 1:
+        enemies_to_spawn = killcount // 7 + 2
+    elif game_data["mission"] == 2:
+        enemies_to_spawn = 5
     if enemies_to_spawn + killcount + len(enemy_list) > 30 + 1:
         enemies_to_spawn = 30 - killcount - len(enemy_list) + 1
     for n in range(enemies_to_spawn):
@@ -149,6 +152,8 @@ def spawn_enemy():
                 break
         if game_data["mission"] == 1:
             imagey = 192
+        if game_data["mission"] == 2:
+            imagey = 768
         new_enemy = enemy(x, y, 0, imagey, "north")
         enemy_list.append(new_enemy)
 
@@ -312,7 +317,8 @@ npc4_insults = {0: ["The road's over there. Use it.", "I gotta go, I'm late for 
 city_background = pygame.image.load(resource_path("city_background.png"))
 city_background = pygame.transform.scale(city_background, (9000, 9000))
 grass_background = city_background.subsurface(0, 0, 4000, 4000)
-city_mini_map = pygame.transform.scale(city_background.subsurface(0, 0, 8000, 8000), (175, 175))
+dirt_background = pygame.image.load(resource_path("dirt.png"))
+dirt_background = pygame.transform.scale(dirt_background, (4000, 4000))
 castle_background = pygame.image.load(resource_path("castle_background.png"))
 castle_background = pygame.transform.scale(castle_background, (4000, 4000))
 objects = pygame.image.load(resource_path("objects.png"))
@@ -332,7 +338,7 @@ npc = pygame.transform.scale(npc, (1536, 3264))
 king_image = npc.subsurface((0, 3072, 192, 192))
 king_image = pygame.transform.scale(king_image, (384, 384))
 enemies = pygame.image.load(resource_path("enemies.png"))
-enemies = pygame.transform.scale(enemies, (1536, 768))
+enemies = pygame.transform.scale(enemies, (1536, 1536))
 mouse_pointer = pygame.image.load(resource_path("sword.png"))
 mouse_pointer = pygame.transform.rotate(mouse_pointer, 35)
 rock_hits_npc = pygame.mixer.Sound(resource_path("rock_hits_npc.wav"))
@@ -564,6 +570,7 @@ while running == True:
                                     feedback = ""
                                     loading = False
                                     paused = False
+                                    talking = False
                                 if mouse_pos[0] < file2_button.right and mouse_pos[0] > file2_button.left and mouse_pos[1] > file2_button.top and mouse_pos[1] < file2_button.bottom:
                                     feedback = "loading..."
                                     enemy_list = []
@@ -589,6 +596,7 @@ while running == True:
                                     feedback = ""
                                     loading = False
                                     paused = False
+                                    talking = False
                                 if mouse_pos[0] < file3_button.right and mouse_pos[0] > file3_button.left and mouse_pos[1] > file3_button.top and mouse_pos[1] < file3_button.bottom:
                                     feedback = "loading..."
                                     enemy_list = []
@@ -614,6 +622,7 @@ while running == True:
                                     feedback = ""
                                     loading = False
                                     paused = False
+                                    talking = False
                                 if mouse_pos[0] < back_button.right and mouse_pos[0] > back_button.left and mouse_pos[1] > back_button.top and mouse_pos[1] < back_button.bottom:
                                     feedback = ""
                                     loading = False
@@ -622,8 +631,8 @@ while running == True:
                             for NPC in npc_list:
                                 npc_rect = pygame.Rect(NPC.x - game_data["worldx"], NPC.y - game_data["worldy"], 192, 192)
                                 if mouse_pos[0] < npc_rect.right and mouse_pos[0] > npc_rect.left and mouse_pos[1] > npc_rect.top and mouse_pos[1] < npc_rect.bottom:
-                                    talking = True
                                     npc_words = random.sample(NPC.words, 1)
+                                    talking = True
                             if mouse_pos[0] < castle_door.right - game_data["worldx"] and mouse_pos[0] > castle_door.left - game_data["worldx"] and mouse_pos[1] > castle_door.top - game_data["worldy"] and mouse_pos[1] < castle_door.bottom - game_data["worldy"] and game_data["area"] == "city" and cooldown < 1:
                                 game_data["area"] = "castle"
                                 game_data["worldx"] = city_door.x + 192 - (width // 2)
@@ -653,13 +662,15 @@ while running == True:
                                 current_map = castle_map
                                 cooldown = 5
                             if mouse_pos[0] < king.right and mouse_pos[0] > king.left and mouse_pos[1] > king.top and mouse_pos[1] < king.bottom and game_data["area"] == "throne room":
-                                talking = True
                                 if game_data["mission"] == 0:
                                     npc_words = [f"So {game_data['name']}, you finally decided to show up."]
-                                elif game_data["mission"] == 1 or game_data["mission"] == 2:
-                                    npc_words = ["What are you doing here? Hurry up and finish your mission!"]
                                 elif game_data["mission"] == 1.5:
                                     npc_words = ["You're back. Took you long enough."]
+                                elif game_data["mission"] == 1 or game_data["mission"] == 2 or game_data["mission"] == 3:
+                                    npc_words = ["What are you doing here? Hurry up and finish your mission!"]
+                                elif game_data["mission"] == 2.5:
+                                    npc_words = ["So you survived. You seem to be more capable then I thought."]
+                                talking = True
                             if mouse_pos[0] < city_gate.right - game_data["worldx"] and mouse_pos[0] > city_gate.left - game_data["worldy"] and mouse_pos[1] > city_gate.top - game_data["worldy"] and mouse_pos[1] < city_gate.bottom - game_data["worldy"] and game_data["area"] == "city" and cooldown < 1:
                                 if game_data["mission"] == 0:
                                     npc_words = ["Where do you think you're going? Get to the castle!"]
@@ -681,6 +692,17 @@ while running == True:
                                     game_data["area"] = "grass"
                                     game_data["worldx"] = outside_city_gate.x + 192 - (width // 2)
                                     game_data["worldy"] = outside_city_gate.bottom + 362 - (width // 2)
+                                    npc_list = []
+                                    spawn_enemy()
+                                    pygame.mixer.music.load(resource_path("battle_song.wav"))
+                                    pygame.mixer.music.play(-1)
+                                    departing = False
+                                if mouse_pos[0] < level_2_button.right and mouse_pos[0] > level_2_button.left and mouse_pos[1] > level_2_button.top and mouse_pos[1] < level_2_button.bottom:
+                                    background = dirt_background
+                                    current_map = {}
+                                    game_data["area"] = "goblin valley"
+                                    game_data["worldx"] = 2000
+                                    game_data["worldy"] = 2000
                                     npc_list = []
                                     spawn_enemy()
                                     pygame.mixer.music.load(resource_path("battle_song.wav"))
@@ -1067,8 +1089,12 @@ while running == True:
                         target.alive = False
                         rock_hits_npc.play()
                         killcount += 1
-                        if killcount < 30:
-                            spawn_enemy()
+                        if game_data["mission"] == 1:
+                            if killcount < 30:
+                                spawn_enemy()
+                        elif game_data["mission"] == 2:
+                            if killcount < 20:
+                                spawn_enemy()
             for e in enemy_list:
                 if e.alive == True:
                     if e.imagex > 1344:
@@ -1077,21 +1103,29 @@ while running == True:
                         e.imagex += 50
                     if e.y > game_data["worldy"] + (height // 2) - 96:
                         e.y -= 5
+                        if game_data["mission"] == 2:
+                            e.y -= 4
                         e.direction = "north"
                         if e.imagey <= 578:
                             e.imagey = 192
                     if e.y < game_data["worldy"] + (height // 2) - 96:
                         e.y += 5
+                        if game_data["mission"] == 2:
+                            e.y += 4
                         e.direction = "south"
                         if e.imagey <= 578:
                             e.imagey = 0
                     if e.x < game_data["worldx"] + (width // 2) - 96:
                         e.x += 5
+                        if game_data["mission"] == 2:
+                            e.x += 4
                         e.direction = "east"
                         if e.imagey <= 578:
                             e.imagey = 384
                     if e.x > game_data["worldx"] + (width // 2) - 96:
                         e.x -= 5
+                        if game_data["mission"] == 2:
+                            e.x -= 4
                         e.direction = "west"
                         if e.imagey <= 578:
                             e.imagey = 576
@@ -1124,11 +1158,14 @@ while running == True:
                         e.x -= 50
                     elif e.direction == "south":
                         e.y += 50
-            if enemy_list == []:
-                if killcount >= 30 and game_data["area"] == "grass" and game_data["mission"] == 1:
+            if enemy_list == [] and (game_data["area"] == "grass" or game_data["area"] == "goblin valley") and (game_data["mission"] == 1 or game_data["mission"] == 2):
+                if game_data["mission"] == 1 and killcount >= 30 and game_data["area"] == "grass":
                     npc_words = ["You did it! Now go back to the castle and talk to the king."]
                     game_data["mission"] = 1.5
-                    talking = True
+                elif game_data["mission"] == 2 and killcount >= 20 and game_data["area"] == "goblin valley":
+                    npc_words = ["You win! Return to the castle for your next mission."]
+                    game_data["mission"] = 2.5
+                talking = True
         for NPC in npc_list[:]:
             if NPC.alive == True:
                 screen.blit(npc, (NPC.x - game_data["worldx"], NPC.y - game_data["worldy"]), area=(192*round(NPC.imagex/192), NPC.imagey, 192, 192))
@@ -1148,8 +1185,7 @@ while running == True:
                     game_over = True
             else:
                 rotation_counter += 1
-                if e.imagey <= 576:
-                    e.rotated = enemies.subsurface((0, e.imagey, 192, 192))
+                e.rotated = enemies.subsurface((0, e.imagey, 192, 192))   
                 e.rotated = pygame.transform.rotate(e.rotated, 20 * rotation_counter)
                 screen.blit(e.rotated, (e.x - game_data["worldx"], e.y - game_data["worldy"]))
                 if e.x < -100 or e.x > 4100 or e.y < 0 or e.y > 4100:
@@ -1408,15 +1444,15 @@ while running == True:
                     level_1_button = draw_button("Outside the city (mission 1)", height/3 - 100, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
             except NameError:
                 level_1_button = draw_button("Outside the city (mission 1)", height/3 - 100, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
-            if game_data["mission"] > 1:
+            if game_data["mission"] > 1.5:
                 try:
                     if mouse_pos[0] < level_2_button.right and mouse_pos[0] > level_2_button.left and mouse_pos[1] > level_2_button.top and mouse_pos[1] < level_2_button.bottom:
-                        level_2_button = draw_button("Right outside the city (mission 2)", height/3, pygame.Color(255, 255, 255), pygame.Color(180, 180, 180))
+                        level_2_button = draw_button("Goblin Valley (mission 2)", height/3, pygame.Color(255, 255, 255), pygame.Color(180, 180, 180))
                     else:
-                        level_2_button = draw_button("Right outside the city (mission 2)", height/3, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
+                        level_2_button = draw_button("Goblin Valley (mission 2)", height/3, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
                 except NameError:
-                    level_2_button = draw_button("Right outside the city (mission 2)", height/3, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
-            if game_data["mission"] > 2:
+                    level_2_button = draw_button("Goblin Valley (mission 2)", height/3, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
+            if game_data["mission"] > 2.5:
                 try:
                     if mouse_pos[0] < level_3_button.right and mouse_pos[0] > level_3_button.left and mouse_pos[1] > level_3_button.top and mouse_pos[1] < level_3_button.bottom:
                         level_3_button = draw_button("Right outside the city (mission 3)", height/3 + 100, pygame.Color(255, 255, 255), pygame.Color(180, 180, 180))
@@ -1424,7 +1460,7 @@ while running == True:
                         level_3_button = draw_button("Right outside the city (mission 3)", height/3 + 100, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
                 except NameError:
                     level_3_button = draw_button("Right outside the city (mission 3)", height/3 + 100, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
-            if game_data["mission"] > 3:
+            if game_data["mission"] > 3.5:
                 try:
                     if mouse_pos[0] < level_4_button.right and mouse_pos[0] > level_4_button.left and mouse_pos[1] > level_4_button.top and mouse_pos[1] < level_4_button.bottom:
                         level_4_button = draw_button("Right outside the city (mission 4)", height/3 + 200, pygame.Color(255, 255, 255), pygame.Color(180, 180, 180))
@@ -1432,7 +1468,7 @@ while running == True:
                         level_4_button = draw_button("Right outside the city (mission 4)", height/3 + 200, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
                 except NameError:
                     level_4_button = draw_button("Right outside the city (mission 4)", height/3 + 200, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
-            if game_data["mission"] > 4:
+            if game_data["mission"] > 4.5:
                 try:
                     if mouse_pos[0] < level_5_button.right and mouse_pos[0] > level_5_button.left and mouse_pos[1] > level_5_button.top and mouse_pos[1] < level_5_button.bottom:
                         level_5_button = draw_button("Right outside the city (mission 5)", height/3 + 300, pygame.Color(255, 255, 255), pygame.Color(180, 180, 180))
