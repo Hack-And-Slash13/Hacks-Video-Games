@@ -111,7 +111,10 @@ def draw_back_button():
 
 def spawn_enemy():
     global current_map, enemy_list, killcount
-    for n in range(killcount // 5 + 2):
+    enemies_to_spawn = killcount // 7 + 2
+    if enemies_to_spawn + killcount + len(enemy_list) > 30 + 1:
+        enemies_to_spawn = 30 - killcount - len(enemy_list) + 1
+    for n in range(enemies_to_spawn):
         number = random.randint(1, 2)
         if number == 1:
             try:
@@ -653,7 +656,7 @@ while running == True:
                                 talking = True
                                 if game_data["mission"] == 0:
                                     npc_words = [f"So {game_data['name']}, you finally decided to show up."]
-                                elif game_data["mission"] == 1:
+                                elif game_data["mission"] == 1 or game_data["mission"] == 2:
                                     npc_words = ["What are you doing here? Hurry up and finish your mission!"]
                                 elif game_data["mission"] == 1.5:
                                     npc_words = ["You're back. Took you long enough."]
@@ -666,9 +669,11 @@ while running == True:
                             if mouse_pos[0] < outside_city_gate.right - game_data["worldx"] and mouse_pos[0] > outside_city_gate.left - game_data["worldx"] and mouse_pos[1] > outside_city_gate.top - game_data["worldy"] and mouse_pos[1] < outside_city_gate.bottom - game_data["worldy"] and game_data["area"] == "grass" and cooldown < 1:
                                 background = city_background
                                 current_map = city_map
-                                game_data["area"] = "city"
                                 game_data["worldx"] = city_gate.x + 192 - (width // 2)
                                 game_data["worldy"] = city_gate.bottom - 10 - (width // 2)
+                                pygame.mixer.music.load(resource_path("exploring_song.wav"))
+                                pygame.mixer.music.play(-1)
+                                game_data["area"] = "city"
                             if departing == True:
                                 if mouse_pos[0] < level_1_button.right and mouse_pos[0] > level_1_button.left and mouse_pos[1] > level_1_button.top and mouse_pos[1] < level_1_button.bottom:
                                     background = grass_background
@@ -678,6 +683,8 @@ while running == True:
                                     game_data["worldy"] = outside_city_gate.bottom + 362 - (width // 2)
                                     npc_list = []
                                     spawn_enemy()
+                                    pygame.mixer.music.load(resource_path("battle_song.wav"))
+                                    pygame.mixer.music.play(-1)
                                     departing = False
                                 if mouse_pos[0] < back_button.right and mouse_pos[0] > back_button.left and mouse_pos[1] > back_button.top and mouse_pos[1] < back_button.bottom:
                                     departing = False
@@ -695,6 +702,8 @@ while running == True:
                             elif npc_words == ["(Press space to pick up rocks and throw them)"]:
                                 npc_words = ["If you survive... I mean, when you come back, I'll give you another mission."]
                                 game_data["mission"] = 1
+                            elif npc_words == ["If you survive... I mean, when you come back, I'll give you another mission."]:
+                                npc_words = ["(go south and click the city gate to attempt your mission)"]
                             elif npc_words == ["You're back. Took you long enough."]:
                                 npc_words = ["I have another mission for you."]
                             elif npc_words == ["I have another mission for you."]:
@@ -1058,40 +1067,54 @@ while running == True:
                         target.alive = False
                         rock_hits_npc.play()
                         killcount += 1
-                        if killcount < 20:
+                        if killcount < 30:
                             spawn_enemy()
-                        if enemy_list == [] and killcount > 20:
-                            npc_words = ["You did it! Now go back to the castle and talk to the king."]
-                            game_data["mission"] = 1.5
-                            talking = True
             for e in enemy_list:
                 if e.alive == True:
                     if e.imagex > 1344:
                         e.imagex = 0
                     else:
                         e.imagex += 50
+                    if e.y > game_data["worldy"] + (height // 2) - 96:
+                        e.y -= 5
+                        e.direction = "north"
+                        if e.imagey <= 578:
+                            e.imagey = 192
+                    if e.y < game_data["worldy"] + (height // 2) - 96:
+                        e.y += 5
+                        e.direction = "south"
+                        if e.imagey <= 578:
+                            e.imagey = 0
                     if e.x < game_data["worldx"] + (width // 2) - 96:
-                        e.x += 7
+                        e.x += 5
                         e.direction = "east"
-                        if e.imagey <= 577:
+                        if e.imagey <= 578:
                             e.imagey = 384
                     if e.x > game_data["worldx"] + (width // 2) - 96:
-                        e.x -= 7
+                        e.x -= 5
                         e.direction = "west"
-                        if e.imagey <= 577:
+                        if e.imagey <= 578:
                             e.imagey = 576
-                    if e.y < game_data["worldy"] + (height // 2) - 96:
-                        e.y += 7
-                        e.direction = "south"
-                        if e.imagey <= 577:
-                            e.imagey = 0
-                    if e.y > game_data["worldy"] + (height // 2) - 96:
-                        e.y -= 7
-                        e.direction = "north"
-                        if e.imagey <= 577:
-                            e.imagey = 192
                     elif e.x >= game_data["worldx"] + (width // 2) - 96 and e.x <= game_data["worldx"] + (width // 2) - 96 and e.y >= game_data["worldy"] + (height // 2) - 96:
                         e.imagex = 0
+                    if abs((game_data["worldx"] + (width // 2) - 96) - e.x) > abs((game_data["worldy"] + (height // 2) - 96) - e.y):
+                        if e.x < game_data["worldx"] + (width // 2) - 96:
+                            e.direction = "east"
+                            if e.imagey <= 578:
+                                e.imagey = 384
+                        if e.x > game_data["worldx"] + (width // 2) - 96:
+                            e.direction = "west"
+                            if e.imagey <= 578:
+                                e.imagey = 576
+                    else:
+                        if e.y > game_data["worldy"] + (height // 2) - 96:
+                            e.direction = "north"
+                            if e.imagey <= 578:
+                                e.imagey = 192
+                        if e.y < game_data["worldy"] + (height // 2) - 96:
+                            e.direction = "south"
+                            if e.imagey <= 578:
+                                e.imagey = 0
                 else:
                     if e.direction == "north":
                         e.y -= 50
@@ -1101,6 +1124,11 @@ while running == True:
                         e.x -= 50
                     elif e.direction == "south":
                         e.y += 50
+            if enemy_list == []:
+                if killcount >= 30 and game_data["area"] == "grass" and game_data["mission"] == 1:
+                    npc_words = ["You did it! Now go back to the castle and talk to the king."]
+                    game_data["mission"] = 1.5
+                    talking = True
         for NPC in npc_list[:]:
             if NPC.alive == True:
                 screen.blit(npc, (NPC.x - game_data["worldx"], NPC.y - game_data["worldy"]), area=(192*round(NPC.imagex/192), NPC.imagey, 192, 192))
@@ -1113,7 +1141,7 @@ while running == True:
         for e in enemy_list[:]:
             if e.alive == True:
                 screen.blit(enemies, (e.x - game_data["worldx"], e.y - game_data["worldy"]), area=(192*round(e.imagex/192), e.imagey, 192, 192))
-                enemy_rect = pygame.Rect(e.x - game_data["worldx"], e.y - game_data["worldy"], 192, 192)
+                enemy_rect = pygame.Rect(e.x - game_data["worldx"] + 96, e.y - game_data["worldy"] + 30, 5, 132)
                 if enemy_rect.colliderect(player_rect):
                     pygame.mixer.music.load(resource_path("womp-womp.mp3"))
                     pygame.mixer.music.play(1)
@@ -1124,6 +1152,8 @@ while running == True:
                     e.rotated = enemies.subsurface((0, e.imagey, 192, 192))
                 e.rotated = pygame.transform.rotate(e.rotated, 20 * rotation_counter)
                 screen.blit(e.rotated, (e.x - game_data["worldx"], e.y - game_data["worldy"]))
+                if e.x < -100 or e.x > 4100 or e.y < 0 or e.y > 4100:
+                    enemy_list.remove(e)
         if holding_rock == True:
             if player_imagey == 0:
                 pygame.draw.circle(screen, pygame.Color(200, 200, 200), (width // 2 - 30, height // 2 + 40), 5)
