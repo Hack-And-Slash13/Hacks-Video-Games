@@ -111,10 +111,13 @@ def draw_back_button():
 
 def spawn_enemy():
     global current_map, enemy_list, killcount
-    if game_data["mission"] == 1:
+    if game_data["area"] == "grass":
         enemies_to_spawn = killcount // 7 + 2
-    elif game_data["mission"] == 2:
-        enemies_to_spawn = 5
+    elif game_data["area"] == "goblin valley":
+        if enemy_list == []:
+            enemies_to_spawn = 4
+        else:
+            enemies_to_spawn = 1
     if enemies_to_spawn + killcount + len(enemy_list) > 30 + 1:
         enemies_to_spawn = 30 - killcount - len(enemy_list) + 1
     for n in range(enemies_to_spawn):
@@ -150,9 +153,9 @@ def spawn_enemy():
                     collision = True
             if collision == False:
                 break
-        if game_data["mission"] == 1:
+        if game_data["area"] == "grass":
             imagey = 192
-        if game_data["mission"] == 2:
+        if game_data["area"] == "goblin valley":
             imagey = 768
         new_enemy = enemy(x, y, 0, imagey, "north")
         enemy_list.append(new_enemy)
@@ -303,6 +306,7 @@ throne_room_door = pygame.Rect(1500, 200, 384, 384)
 castle_entry_way_door = pygame.Rect(1150, 1190, 384, 384)
 city_gate = pygame.Rect(3850, 7705, 384, 384)
 outside_city_gate = pygame.Rect(2000, 500, 384, 384)
+return_button = pygame.Rect(0, 0, 0, 0)
 reset_button = pygame.Rect(0, 0, 0, 0)
 level_1_button = pygame.Rect(0, 0, 0, 0)
 level_2_button = pygame.Rect(0, 0, 0, 0)
@@ -310,6 +314,7 @@ level_3_button = pygame.Rect(0, 0, 0, 0)
 level_4_button = pygame.Rect(0, 0, 0, 0)
 level_5_button = pygame.Rect(0, 0, 0, 0)
 
+insults = {"grass": ["Congratulations! You just got eaten by a bunny!", "You dead, bunny but!", "Nice try, just try aiming next time.", "Just throw rocks at bunnies, it doesn't get simpler than that."], "goblin valley": ["Wow, you just got killed by a goblin half your size.", "You can open your eyes now.", "Great job! The only thing that could improve your rock throwing is aiming!", "That was pathetic.", "Maybe try not to let the goblins hit you with swords."]}
 npc1_insults = {0: ["I heard the king has a really important mission for you.", "Howdy!", "Don't you have something better to do?", "The castle's up north if that's where your headed", "Shouldn't you be going to the castle?", "What are you up to?", "That's it. Nap time.", "You're lucky you get to go inside the castle, no one's allowed in there.", "The Castle's North. that big building you LITTERALLY can't miss!"], 1: ["Those monsters destroyed my garden last night!", "What happened in the castle?", "Howdy!", "What's up?", "Someone needs to get rid of those monsters...", "I need a nap...", "If you're looking for the city gate, it's south, at the end of the road.", "Please don't throw a rock at me!"], 1.5: ["Be careful with those rocks, buddy!", "Did you kill the monsters?", "I hope you got rid of the monsters.", "Hey, you're back... alive?", "You actually survived?"], 2: ["You're going to goblin valley?!", "be careful with those rocks!", "Hi!", "I think there are still more bunnies near the city.", "The king sent you on another mission?"]}
 npc2_insults = {0: ["What?", "What do you want?", "Don't you have something better to do?", "What is it this time?", "Hello.", "If you're looking for the castle, just follow the road north.", "Nice hair.", "You're lucky the king summoned you to the castle, he doesn't let anyone else in.", "looking for the castle? it's the big building you can see from anywhere in town."], 1: ["Hello!", "The city gate is south. Just follow the road.", "My garden was devestated by those horrible monsters!", "How'd it go in the castle?", "What?", "The city gate is at the end of the road.", "Be careful with those rocks!"], 1.5: ["Watch it, you keep hitting people with rocks!", "Did you kill all those monsters?", "Hi!", "What?", "You really killed the monsters?"], 2: ["I heard Goblin Valley is really dangerous", "be careful with those rocks!", "What?", "More bunnies attacked my garden while you were gone.", "Hello!"]}
 npc3_insults = {0: ["Yo!", "Sup?", "The castle's north, at the end of the road.", "Hey.", "Do I know you?", "Be careful in the castle, I don't trust the king one bit.", "The castle's up north. Just follow the road.", "Suspicious the king only lets you in the castle...", "You can't find the castle? Are you blind?"], 1: ["That king is suspicious...", "So, what is this secret mission of yours, mercenary?", "Yo!", "Sup?", "The city gate is south. But why were you sent out of town?", "If you throw a rock at me, I'll sue you!"], 1.5: ["Yo!", "I still think the king is suspicious", "How are you still alive?", "You made it back alive?! Oh well, there's always next time...", "Nice rock you got there."], 2: ["I wonder why the king wants all the goblins dead...", "Sup?", "Yo!", "Hey, great job fighting off those bunnies", "I still don't trust that king"]}
@@ -508,6 +513,15 @@ while running == True:
                 elif game_state == "exploring":
                     if mouse_pos[0] < reset_button.right and mouse_pos[0] > reset_button.left and mouse_pos[1] > reset_button.top and mouse_pos[1] < reset_button.bottom and game_over == True:
                         reset()
+                    if mouse_pos[0] < return_button.right and mouse_pos[0] > return_button.left and mouse_pos[1] > return_button.top and mouse_pos[1] < return_button.bottom and game_data["area"] != "city" and game_data["area"] != "castle" and game_data["area"] != "throne room":
+                        background = city_background
+                        current_map = city_map
+                        game_data["worldx"] = city_gate.x + 192 - (width // 2)
+                        game_data["worldy"] = city_gate.bottom - 10 - (width // 2)
+                        pygame.mixer.music.load(resource_path("exploring_song.wav"))
+                        pygame.mixer.music.play(-1)
+                        departing = False
+                        game_data["area"] = "city"
                     if paused == True:
                         if saving == False and loading == False:
                             if mouse_pos[0] < continue_button.right and mouse_pos[0] > continue_button.left and mouse_pos[1] > continue_button.top and mouse_pos[1] < continue_button.bottom:
@@ -1089,10 +1103,10 @@ while running == True:
                         target.alive = False
                         rock_hits_npc.play()
                         killcount += 1
-                        if game_data["mission"] == 1:
+                        if game_data["area"] == "grass":
                             if killcount < 30:
                                 spawn_enemy()
-                        elif game_data["mission"] == 2:
+                        elif game_data["area"] == "goblin valley":
                             if killcount < 20:
                                 spawn_enemy()
             for e in enemy_list:
@@ -1103,28 +1117,28 @@ while running == True:
                         e.imagex += 50
                     if e.y > game_data["worldy"] + (height // 2) - 96:
                         e.y -= 5
-                        if game_data["mission"] == 2:
+                        if game_data["area"] == "goblin valley":
                             e.y -= 4
                         e.direction = "north"
                         if e.imagey <= 578:
                             e.imagey = 192
                     if e.y < game_data["worldy"] + (height // 2) - 96:
                         e.y += 5
-                        if game_data["mission"] == 2:
+                        if game_data["area"] == "goblin valley":
                             e.y += 4
                         e.direction = "south"
                         if e.imagey <= 578:
                             e.imagey = 0
                     if e.x < game_data["worldx"] + (width // 2) - 96:
                         e.x += 5
-                        if game_data["mission"] == 2:
+                        if game_data["area"] == "goblin valley":
                             e.x += 4
                         e.direction = "east"
                         if e.imagey <= 578:
                             e.imagey = 384
                     if e.x > game_data["worldx"] + (width // 2) - 96:
                         e.x -= 5
-                        if game_data["mission"] == 2:
+                        if game_data["area"] == "goblin valley":
                             e.x -= 4
                         e.direction = "west"
                         if e.imagey <= 578:
@@ -1158,14 +1172,6 @@ while running == True:
                         e.x -= 50
                     elif e.direction == "south":
                         e.y += 50
-            if enemy_list == [] and (game_data["area"] == "grass" or game_data["area"] == "goblin valley") and (game_data["mission"] == 1 or game_data["mission"] == 2):
-                if game_data["mission"] == 1 and killcount >= 30 and game_data["area"] == "grass":
-                    npc_words = ["You did it! Now go back to the castle and talk to the king."]
-                    game_data["mission"] = 1.5
-                elif game_data["mission"] == 2 and killcount >= 20 and game_data["area"] == "goblin valley":
-                    npc_words = ["You win! Return to the castle for your next mission."]
-                    game_data["mission"] = 2.5
-                talking = True
         for NPC in npc_list[:]:
             if NPC.alive == True:
                 screen.blit(npc, (NPC.x - game_data["worldx"], NPC.y - game_data["worldy"]), area=(192*round(NPC.imagex/192), NPC.imagey, 192, 192))
@@ -1179,9 +1185,10 @@ while running == True:
             if e.alive == True:
                 screen.blit(enemies, (e.x - game_data["worldx"], e.y - game_data["worldy"]), area=(192*round(e.imagex/192), e.imagey, 192, 192))
                 enemy_rect = pygame.Rect(e.x - game_data["worldx"] + 96, e.y - game_data["worldy"] + 30, 5, 132)
-                if enemy_rect.colliderect(player_rect):
+                if enemy_rect.colliderect(player_rect) and game_over == False:
                     pygame.mixer.music.load(resource_path("womp-womp.mp3"))
                     pygame.mixer.music.play(1)
+                    insult = random.sample(insults[game_data["area"]], 1)
                     game_over = True
             else:
                 rotation_counter += 1
@@ -1190,6 +1197,17 @@ while running == True:
                 screen.blit(e.rotated, (e.x - game_data["worldx"], e.y - game_data["worldy"]))
                 if e.x < -100 or e.x > 4100 or e.y < 0 or e.y > 4100:
                     enemy_list.remove(e)
+                    if enemy_list == [] and (game_data["area"] == "grass" or game_data["area"] == "goblin valley"):
+                        if killcount >= 29 and game_data["area"] == "grass":
+                            npc_words = ["You did it! Now go back to the castle and talk to the king."]
+                            if game_data["mission"] < 1.5:
+                                game_data["mission"] = 1.5
+                            talking = True
+                        elif killcount >= 19 and game_data["area"] == "goblin valley":
+                            npc_words = ["You win! Return to the castle for your next mission."]
+                            if game_data["mission"] < 2.5:
+                                game_data["mission"] = 2.5
+                            talking = True
         if holding_rock == True:
             if player_imagey == 0:
                 pygame.draw.circle(screen, pygame.Color(200, 200, 200), (width // 2 - 30, height // 2 + 40), 5)
@@ -1302,16 +1320,48 @@ while running == True:
                 else:
                     if npc_rect.colliderect(pygame.Rect(obstacle)):
                         npc_list.remove(NPC)
-        if game_data["area"] == "grass":
-            if game_over == False:
-                text = medium_font.render(f"objective: destroy all bunnies   killcount: {killcount}", False, pygame.Color(255, 255, 255))
+        if game_data["area"] != "city" and game_data["area"] != "castle" and game_data["area"] != "throne room":
+            if enemy_list == []:
+                text = medium_font.render(f"objective: return to the city   killcount: {killcount}", False, pygame.Color(255, 255, 255))
+                text_rect = text.get_rect()
+                text_rect.left = 20
+                text_rect.top = 20
+                screen.blit(text, text_rect)
             else:
-                text = medium_font.render(f"objective: destroy all bunnies   killcount: {killcount}   FAILED", False, pygame.Color(255, 255, 255))
-            text_rect = text.get_rect()
-            text_rect.left = 20
-            text_rect.top = 20
-            screen.blit(text, text_rect)
+                if game_data["area"] == "grass":
+                    if game_over == False:
+                        text = medium_font.render(f"objective: destroy all bunnies   killcount: {killcount}", False, pygame.Color(255, 255, 255))
+                    else:
+                        text = medium_font.render(f"objective: destroy all bunnies   killcount: {killcount}   FAILED", False, pygame.Color(255, 255, 255))
+                    text_rect = text.get_rect()
+                    text_rect.left = 20
+                    text_rect.top = 20
+                    screen.blit(text, text_rect)
+                elif game_data["area"] == "goblin valley":
+                    if game_over == False:
+                        text = medium_font.render(f"objective: destroy all goblins   killcount: {killcount}", False, pygame.Color(255, 255, 255))
+                    else:
+                        text = medium_font.render(f"objective: destroy all goblins   killcount: {killcount}   FAILED", False, pygame.Color(255, 255, 255))
+                    text_rect = text.get_rect()
+                    text_rect.left = 20
+                    text_rect.top = 20
+                    screen.blit(text, text_rect)
         collision = False
+        if enemy_list == [] and killcount > 1 and game_data["area"] != "city" and game_data["area"] != "castle" and game_data["area"] != "throne room":
+            text = medium_font.render("return to the city", False, pygame.Color(255, 255, 255))
+            text_rect = text.get_rect()
+            text_rect.left = 50
+            text_rect.bottom = height - 100
+            text_rect.width += 50
+            text_rect.height += 50
+            try:
+                if mouse_pos[0] < return_button.right and mouse_pos[0] > return_button.left and mouse_pos[1] > return_button.top and mouse_pos[1] < return_button.bottom:
+                    return_button = pygame.draw.rect(screen, pygame.Color(180, 180, 180), text_rect)
+                else:
+                    return_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), text_rect)
+            except NameError:
+                return_button = pygame.draw.rect(screen, pygame.Color(150, 150, 150), text_rect)
+            screen.blit(text, (text_rect.x + 20, text_rect.y + text_rect.height // 4))
         if paused == True:
             if counter < 8:
                 counter += 1
@@ -1494,10 +1544,14 @@ while running == True:
         text_rect = text.get_rect()
         text_rect.center = (width // 2, height // 2 - 50)
         screen.blit(text, text_rect)
+        text = big_font.render(*insult, False, pygame.Color(255, 0, 0))
+        text_rect = text.get_rect()
+        text_rect.center = (width // 2, height // 2 + 25)
+        screen.blit(text, text_rect)
         if mouse_pos[0] < reset_button.right and mouse_pos[0] > reset_button.left and mouse_pos[1] > reset_button.top and mouse_pos[1] < reset_button.bottom:
-            reset_button = draw_button("return to title screen", height // 2 + 50, pygame.Color(255, 0, 0), pygame.Color(180, 180, 180))
+            reset_button = draw_button("return to title screen", height // 2 + 100, pygame.Color(255, 0, 0), pygame.Color(180, 180, 180))
         else:
-            reset_button = draw_button("return to title screen", height // 2 + 50, pygame.Color(255, 0, 0), pygame.Color(150, 150, 150))
+            reset_button = draw_button("return to title screen", height // 2 + 100, pygame.Color(255, 0, 0), pygame.Color(150, 150, 150))
     window.blit(pygame.transform.scale(screen, (screen_width, screen_height)), (0, 0))
     window.blit(mouse_pointer, (mousex, mousey))
     pygame.display.update()
