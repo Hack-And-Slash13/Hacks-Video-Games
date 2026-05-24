@@ -686,6 +686,7 @@ while running == True:
                                     npc_words = ["So you survived. You seem to be more capable then I thought."]
                                 talking = True
                             if mouse_pos[0] < city_gate.right - game_data["worldx"] and mouse_pos[0] > city_gate.left - game_data["worldy"] and mouse_pos[1] > city_gate.top - game_data["worldy"] and mouse_pos[1] < city_gate.bottom - game_data["worldy"] and game_data["area"] == "city" and cooldown < 1:
+                                killcount = 0
                                 if game_data["mission"] == 0:
                                     npc_words = ["Where do you think you're going? Get to the castle!"]
                                     talking = True
