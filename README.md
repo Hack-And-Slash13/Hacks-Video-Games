@@ -43,10 +43,6 @@ Cypher Smasher is a 10-level game using pygame where each level is a different k
 
 Bible Trivia Game is a trivia game about the bible (can you believe it?). It uses pygame and requests. It also pulls questions from this website: [https://hack-and-slash13.github.io/Bible-Trivia-Game/](https://hack-and-slash13.github.io/Bible-Trivia-Game/), so you have to have internet to play.
 
-### Hounder
+### Pebble Power
 
-Hounder is a tactics game using pygame, and it's not done yet. You can download all the files seperatly, or you can download Hounder.png and rename it to .zip and unzip it if that's easier. The python file and all the game assets are in there.
-
-### Note about the Game Assets
-
-All of the sprite sheets in Cosmo Crash were created by me, so you can use them however you want. However, I found all of the other game assets online, and I don't know what their licences are, so use them carefully, and, unless you can hunt down the license, I would reccomend not using them for commercial purposes.
+Pebble Power is a pygame game where you throw rocks at enemies.
