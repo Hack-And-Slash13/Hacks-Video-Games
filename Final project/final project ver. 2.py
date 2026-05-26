@@ -118,6 +118,8 @@ def spawn_enemy():
             enemies_to_spawn = 4
         else:
             enemies_to_spawn = 1
+    elif game_data["area"] == "forest":
+        enemies_to_spawn = 30
     if enemies_to_spawn + killcount + len(enemy_list) > 30 + 1:
         enemies_to_spawn = 30 - killcount - len(enemy_list) + 1
     for n in range(enemies_to_spawn):
@@ -155,8 +157,14 @@ def spawn_enemy():
                 break
         if game_data["area"] == "grass":
             imagey = 192
-        if game_data["area"] == "goblin valley":
+        elif game_data["area"] == "goblin valley":
             imagey = 768
+        elif game_data["area"] == "forest":
+            number = random.randint(1, 2)
+            if number == 1:
+                imagey = 1536
+            elif number == 2:
+                imagey = 2304
         new_enemy = enemy(x, y, 0, imagey, "north")
         enemy_list.append(new_enemy)
 
@@ -201,6 +209,10 @@ def spawn_npc():
                 words = random.sample(npc1_insults[1.5], 5)
             elif game_data["mission"] == 2:
                 words = random.sample(npc1_insults[2], 5)
+            elif game_data["mission"] == 2.5:
+                words = random.sample(npc2_insults[2.5], 5)
+            elif game_data["mission"] == 3:
+                words = random.sample(npc2_insults[3], 5)
             if direction == "north":    
                 imagey = 192
             elif direction == "east":    
@@ -218,6 +230,10 @@ def spawn_npc():
                 words = random.sample(npc2_insults[1.5], 5)
             elif game_data["mission"] == 2:
                 words = random.sample(npc2_insults[2], 5)
+            elif game_data["mission"] == 2.5:
+                words = random.sample(npc2_insults[2.5], 5)
+            elif game_data["mission"] == 3:
+                words = random.sample(npc2_insults[3], 5)
             if direction == "north":    
                 imagey = 768
             elif direction == "east":    
@@ -235,6 +251,10 @@ def spawn_npc():
                 words = random.sample(npc3_insults[1.5], 5)
             elif game_data["mission"] == 2:
                 words = random.sample(npc3_insults[2], 5)
+            elif game_data["mission"] == 2.5:
+                words = random.sample(npc2_insults[2.5], 5)
+            elif game_data["mission"] == 3:
+                words = random.sample(npc2_insults[3], 5)
             if direction == "north":    
                 imagey = 1728
             elif direction == "east":    
@@ -252,6 +272,10 @@ def spawn_npc():
                 words = random.sample(npc4_insults[1.5], 5)
             elif game_data["mission"] == 2:
                 words = random.sample(npc4_insults[2], 5)
+            elif game_data["mission"] == 2.5:
+                words = random.sample(npc2_insults[2.5], 5)
+            elif game_data["mission"] == 3:
+                words = random.sample(npc2_insults[3], 5)
             if direction == "north":    
                 imagey = 2496
             elif direction == "east":    
@@ -299,6 +323,7 @@ city_map = {(0, 0, 200, 7600): "wall", (0, 7400, 7600, 200): "wall", (7400, 0, 2
 castle_map = {(0, 0, 100, 3000): "wall", (0, 2900, 2000, 100): "wall", (1900, 0, 100, 3000): "wall", (0, 0, 2000, 100): "wall"}
 throne_room_map = {(0, 0, 1000, 100): "wall", (0, 0, 100, 1000): "wall", (990, 0, 100, 1090): "wall", (0, 990, 1000, 100): "wall"}
 grass_map = {(-760, 200, 4000, 200): "wall"}
+forest_map = {(20, 100, 768, 768): "tree", (80, 200, 768, 768): "tree", (2000, 150, 768, 768): "tree", (2500, 100, 768, 768): "tree", (3000, 250, 768, 768): "tree", (3500, 100, 768, 768): "tree", (80, 400, 768, 768): "tree", (90, 350, 768, 768): "tree", (100, 2000, 768, 768): "tree", (80, 3000, 768, 768): "tree", (250, 2000, 768, 768): "tree", (300, 3500, 768, 768): "tree", (500, 3000, 768, 768): "tree", (600, 3750, 768, 768): "tree", (2000, 3000, 768, 768): "tree"}
 
 city_door = pygame.Rect(1500, 3100, 384, 384)
 castle_door = pygame.Rect(3876, 3530, 384, 384)
@@ -314,16 +339,18 @@ level_3_button = pygame.Rect(0, 0, 0, 0)
 level_4_button = pygame.Rect(0, 0, 0, 0)
 level_5_button = pygame.Rect(0, 0, 0, 0)
 
-insults = {"grass": ["Congratulations! You just got eaten by a bunny!", "You dead, bunny but!", "Nice try, just try aiming next time.", "Just throw rocks at bunnies, it doesn't get simpler than that."], "goblin valley": ["Wow, you just got killed by a goblin half your size.", "You can open your eyes now.", "Great job! The only thing that could improve your rock throwing is aiming!", "That was pathetic.", "Maybe try not to let the goblins hit you with swords."]}
-npc1_insults = {0: ["I heard the king has a really important mission for you.", "Howdy!", "Don't you have something better to do?", "The castle's up north if that's where your headed", "Shouldn't you be going to the castle?", "What are you up to?", "That's it. Nap time.", "You're lucky you get to go inside the castle, no one's allowed in there.", "The Castle's North. that big building you LITTERALLY can't miss!"], 1: ["Those monsters destroyed my garden last night!", "What happened in the castle?", "Howdy!", "What's up?", "Someone needs to get rid of those monsters...", "I need a nap...", "If you're looking for the city gate, it's south, at the end of the road.", "Please don't throw a rock at me!"], 1.5: ["Be careful with those rocks, buddy!", "Did you kill the monsters?", "I hope you got rid of the monsters.", "Hey, you're back... alive?", "You actually survived?"], 2: ["You're going to goblin valley?!", "be careful with those rocks!", "Hi!", "I think there are still more bunnies near the city.", "The king sent you on another mission?"]}
-npc2_insults = {0: ["What?", "What do you want?", "Don't you have something better to do?", "What is it this time?", "Hello.", "If you're looking for the castle, just follow the road north.", "Nice hair.", "You're lucky the king summoned you to the castle, he doesn't let anyone else in.", "looking for the castle? it's the big building you can see from anywhere in town."], 1: ["Hello!", "The city gate is south. Just follow the road.", "My garden was devestated by those horrible monsters!", "How'd it go in the castle?", "What?", "The city gate is at the end of the road.", "Be careful with those rocks!"], 1.5: ["Watch it, you keep hitting people with rocks!", "Did you kill all those monsters?", "Hi!", "What?", "You really killed the monsters?"], 2: ["I heard Goblin Valley is really dangerous", "be careful with those rocks!", "What?", "More bunnies attacked my garden while you were gone.", "Hello!"]}
-npc3_insults = {0: ["Yo!", "Sup?", "The castle's north, at the end of the road.", "Hey.", "Do I know you?", "Be careful in the castle, I don't trust the king one bit.", "The castle's up north. Just follow the road.", "Suspicious the king only lets you in the castle...", "You can't find the castle? Are you blind?"], 1: ["That king is suspicious...", "So, what is this secret mission of yours, mercenary?", "Yo!", "Sup?", "The city gate is south. But why were you sent out of town?", "If you throw a rock at me, I'll sue you!"], 1.5: ["Yo!", "I still think the king is suspicious", "How are you still alive?", "You made it back alive?! Oh well, there's always next time...", "Nice rock you got there."], 2: ["I wonder why the king wants all the goblins dead...", "Sup?", "Yo!", "Hey, great job fighting off those bunnies", "I still don't trust that king"]}
-npc4_insults = {0: ["The road's over there. Use it.", "I gotta go, I'm late for nap time.", "Looking for the castle? Just follow the road north.", "If the king sent for you, you'd better get to the castle.", "Don't you have somewhere to be?", "What do you want, peasant?", "Goodbye.", "You're actually allowed in the castle?!", "The sooner you get to the castle, the sooner you can stop hassling me."], 1: ["I gotta go, nap time.", "Hi", "The road's over there. Use it.", "Some monsters attacked my garden last night.", "I'll kill those little monsters next time they go near my garden!", "Hi! Oh, that's a nice rock there..."], 1.5: ["Hello!", "You really killed all those horrible monsters?", "Hey, you made it back!", "You didn't die? Too bad... I mean welcome back!", "Please be careful with those rocks."], 2: ["You're going to Goblin Valley? No one has ever escaped there alive!", "Goodbye", "Please stop with the rock throwing.", "Those bunnies returned. They just keep coming", "What is it this time?"]}
+insults = {"grass": ["Congratulations! You just got eaten by a bunny!", "You dead, bunny but!", "Nice try, just try aiming next time.", "Just throw rocks at bunnies, it doesn't get simpler than that."], "goblin valley": ["Wow, you just got killed by a goblin half your size.", "You can open your eyes now.", "Great job! The only thing that could improve your rock throwing is aiming!", "That was pathetic.", "Maybe try not to let the goblins hit you with swords."], "forest": ["Wow, you got killed by a bug.", "What's wrong, afraid of a little spider?", "Maybe try aiming next time.", "The enemies bugging you?"]}
+npc1_insults = {0: ["I heard the king has a really important mission for you.", "Howdy!", "Don't you have something better to do?", "The castle's up north if that's where your headed", "Shouldn't you be going to the castle?", "What are you up to?", "That's it. Nap time.", "You're lucky you get to go inside the castle, no one's allowed in there.", "The Castle's North. that big building you LITTERALLY can't miss!"], 1: ["Those monsters destroyed my garden last night!", "What happened in the castle?", "Howdy!", "What's up?", "Someone needs to get rid of those monsters...", "I need a nap...", "If you're looking for the city gate, it's south, at the end of the road.", "Please don't throw a rock at me!"], 1.5: ["Be careful with those rocks, buddy!", "Did you kill the monsters?", "I hope you got rid of the monsters.", "Hey, you're back... alive?", "You actually survived?"], 2: ["You're going to goblin valley?!", "be careful with those rocks!", "Hi!", "I think there are still more bunnies near the city.", "The king sent you on another mission?"], 2.5: ["Wait, you actually got out of Goblin Valley alive?!", "Hello!", "Seriously, be carefull with those rocks.", "Did you see any goblins?", "I heard the king went on a picnic. So this is where out taxes are going."], 3: ["Where has the king been all this time?", "Hello!", "Another mission? Really? That king just doesn't quit.", "I don't have time for this right now.", "Please watch it with those rocks."]}
+npc2_insults = {0: ["What?", "What do you want?", "Don't you have something better to do?", "What is it this time?", "Hello.", "If you're looking for the castle, just follow the road north.", "Nice hair.", "You're lucky the king summoned you to the castle, he doesn't let anyone else in.", "looking for the castle? it's the big building you can see from anywhere in town."], 1: ["Hello!", "The city gate is south. Just follow the road.", "My garden was devestated by those horrible monsters!", "How'd it go in the castle?", "What?", "The city gate is at the end of the road.", "Be careful with those rocks!"], 1.5: ["Watch it, you keep hitting people with rocks!", "Did you kill all those monsters?", "Hi!", "What?", "You really killed the monsters?"], 2: ["I heard Goblin Valley is really dangerous", "be careful with those rocks!", "What?", "More bunnies attacked my garden while you were gone.", "Hello!"], 2.5: ["You came back... in one peice?", "Hey!", "Watch it with those rocks, you maniac!", "You really went to Goblin Valley?", "Where has the king this whole time?"], 3: ["Where has the king been all this time?", "Hey!", "You really got another mission as soon as you get back?", "I gotta go, bye.", "Stop playing with rocks, buddy."]}
+npc3_insults = {0: ["Yo!", "Sup?", "The castle's north, at the end of the road.", "Hey.", "Do I know you?", "Be careful in the castle, I don't trust the king one bit.", "The castle's up north. Just follow the road.", "Suspicious the king only lets you in the castle...", "You can't find the castle? Are you blind?"], 1: ["That king is suspicious...", "So, what is this secret mission of yours, mercenary?", "Yo!", "Sup?", "The city gate is south. But why were you sent out of town?", "If you throw a rock at me, I'll sue you!"], 1.5: ["Yo!", "I still think the king is suspicious", "How are you still alive?", "You made it back alive?! Oh well, there's always next time...", "Nice rock you got there."], 2: ["I wonder why the king wants all the goblins dead...", "Sup?", "Yo!", "Hey, great job fighting off those bunnies", "I still don't trust that king"], 2.5: ["How did you survive Goblin Valley?", "Yo!", "Be carefull with those rocks, you phycopath!", "Are there really goblins in Goblin Valley, or is the king lying?", "I guess the king is out picnicking, instead of ruling his city.", "I still don't trust that king."], 3: ["Sup?", "Yo!", "I still don't trust that king. You should quit.", "The king is using you, you should quit", "Stop throwing rocks at me!"]}
+npc4_insults = {0: ["The road's over there. Use it.", "I gotta go, I'm late for nap time.", "Looking for the castle? Just follow the road north.", "If the king sent for you, you'd better get to the castle.", "Don't you have somewhere to be?", "What do you want, peasant?", "Goodbye.", "You're actually allowed in the castle?!", "The sooner you get to the castle, the sooner you can stop hassling me."], 1: ["I gotta go, nap time.", "Hi", "The road's over there. Use it.", "Some monsters attacked my garden last night.", "I'll kill those little monsters next time they go near my garden!", "Hi! Oh, that's a nice rock there..."], 1.5: ["Hello!", "You really killed all those horrible monsters?", "Hey, you made it back!", "You didn't die? Too bad... I mean welcome back!", "Please be careful with those rocks."], 2: ["You're going to Goblin Valley? No one has ever escaped there alive!", "Goodbye", "Please stop with the rock throwing.", "Those bunnies returned. They just keep coming", "What is it this time?"], 2.5: ["Wait, you actually got out of Goblin Valley alive?!", "Hello!", "Seriously, be carefull with those rocks.", "Did you see any goblins?", "I heard the king went on a picnic. So this is where out taxes are going."], 3: ["Where has the king been all this time?", "Hello!", "Another mission? Really? That king just doesn't quit.", "I don't have time for this right now.", "Please watch it with those rocks."]}
 city_background = pygame.image.load(resource_path("city_background.png"))
 city_background = pygame.transform.scale(city_background, (9000, 9000))
 grass_background = city_background.subsurface(0, 0, 4000, 4000)
 dirt_background = pygame.image.load(resource_path("dirt.png"))
 dirt_background = pygame.transform.scale(dirt_background, (4000, 4000))
+forest_background = pygame.image.load(resource_path("forest_background.png"))
+forest_background = pygame.transform.scale(forest_background, (4000, 4000))
 castle_background = pygame.image.load(resource_path("castle_background.png"))
 castle_background = pygame.transform.scale(castle_background, (4000, 4000))
 objects = pygame.image.load(resource_path("objects.png"))
@@ -343,7 +370,7 @@ npc = pygame.transform.scale(npc, (1536, 3264))
 king_image = npc.subsurface((0, 3072, 192, 192))
 king_image = pygame.transform.scale(king_image, (384, 384))
 enemies = pygame.image.load(resource_path("enemies.png"))
-enemies = pygame.transform.scale(enemies, (1536, 1536))
+enemies = pygame.transform.scale(enemies, (1536, 3072))
 mouse_pointer = pygame.image.load(resource_path("sword.png"))
 mouse_pointer = pygame.transform.rotate(mouse_pointer, 35)
 rock_hits_npc = pygame.mixer.Sound(resource_path("rock_hits_npc.wav"))
@@ -679,11 +706,11 @@ while running == True:
                                 if game_data["mission"] == 0:
                                     npc_words = [f"So {game_data['name']}, you finally decided to show up."]
                                 elif game_data["mission"] == 1.5:
-                                    npc_words = ["You're back. Took you long enough."]
-                                elif game_data["mission"] == 1 or game_data["mission"] == 2 or game_data["mission"] == 3:
-                                    npc_words = ["What are you doing here? Hurry up and finish your mission!"]
-                                elif game_data["mission"] == 2.5:
                                     npc_words = ["So you survived. You seem to be more capable then I thought."]
+                                elif game_data["mission"] == 2.5:
+                                    npc_words = ["Finally, you're back. I have a very important mission for you."]
+                                else:
+                                    npc_words = ["What are you doing here? Hurry up and finish your mission!"]
                                 talking = True
                             if mouse_pos[0] < city_gate.right - game_data["worldx"] and mouse_pos[0] > city_gate.left - game_data["worldy"] and mouse_pos[1] > city_gate.top - game_data["worldy"] and mouse_pos[1] < city_gate.bottom - game_data["worldy"] and game_data["area"] == "city" and cooldown < 1:
                                 killcount = 0
@@ -723,6 +750,17 @@ while running == True:
                                     pygame.mixer.music.load(resource_path("battle_song.wav"))
                                     pygame.mixer.music.play(-1)
                                     departing = False
+                                if mouse_pos[0] < level_3_button.right and mouse_pos[0] > level_3_button.left and mouse_pos[1] > level_3_button.top and mouse_pos[1] < level_3_button.bottom:
+                                    background = forest_background
+                                    current_map = forest_map
+                                    game_data["area"] = "forest"
+                                    game_data["worldx"] = 2000
+                                    game_data["worldy"] = 2000
+                                    npc_list = []
+                                    spawn_enemy()
+                                    pygame.mixer.music.load(resource_path("battle_song.wav"))
+                                    pygame.mixer.music.play(-1)
+                                    departing = False
                                 if mouse_pos[0] < back_button.right and mouse_pos[0] > back_button.left and mouse_pos[1] > back_button.top and mouse_pos[1] < back_button.bottom:
                                     departing = False
                         else:
@@ -741,11 +779,16 @@ while running == True:
                                 game_data["mission"] = 1
                             elif npc_words == ["If you survive... I mean, when you come back, I'll give you another mission."]:
                                 npc_words = ["(go south and click the city gate to attempt your mission)"]
-                            elif npc_words == ["You're back. Took you long enough."]:
+                            elif npc_words == ["So you survived. You seem to be more capable then I thought."]:
                                 npc_words = ["I have another mission for you."]
                             elif npc_words == ["I have another mission for you."]:
                                 npc_words = ["Go to the goblin valley and kill all the goblins. They're annoying."]
                                 game_data["mission"] = 2
+                            elif npc_words == ["Finally, you're back. I have a very important mission for you."]:
+                                npc_words = ["A few hours ago, I was having a picnic in the forest..."]
+                            elif npc_words == ["A few hours ago, I was having a picnic in the forest..."]:
+                                npc_words = ["When a bunch of monsters attacked me! Go kill them all!"]
+                                game_data["mission"] = 3
                             else:
                                 talking = False
         if event.type == pygame.KEYDOWN:
@@ -1120,6 +1163,8 @@ while running == True:
                         e.y -= 5
                         if game_data["area"] == "goblin valley":
                             e.y -= 4
+                        if game_data["area"] == "forest":
+                            e.y -= 2
                         e.direction = "north"
                         if e.imagey <= 578:
                             e.imagey = 192
@@ -1127,6 +1172,8 @@ while running == True:
                         e.y += 5
                         if game_data["area"] == "goblin valley":
                             e.y += 4
+                        if game_data["area"] == "forest":
+                            e.y -= 2
                         e.direction = "south"
                         if e.imagey <= 578:
                             e.imagey = 0
@@ -1134,6 +1181,8 @@ while running == True:
                         e.x += 5
                         if game_data["area"] == "goblin valley":
                             e.x += 4
+                        if game_data["area"] == "forest":
+                            e.y -= 2
                         e.direction = "east"
                         if e.imagey <= 578:
                             e.imagey = 384
@@ -1141,6 +1190,8 @@ while running == True:
                         e.x -= 5
                         if game_data["area"] == "goblin valley":
                             e.x -= 4
+                        if game_data["area"] == "forest":
+                            e.y -= 2
                         e.direction = "west"
                         if e.imagey <= 578:
                             e.imagey = 576
@@ -1151,19 +1202,43 @@ while running == True:
                             e.direction = "east"
                             if e.imagey <= 578:
                                 e.imagey = 384
+                            elif e.imagey <= 1345:
+                                e.imagey = 1152
+                            elif e.imagey <= 2113:
+                                e.imagey = 1920
+                            elif e.imagey <= 2881:
+                                e.imagey = 2688
                         if e.x > game_data["worldx"] + (width // 2) - 96:
                             e.direction = "west"
                             if e.imagey <= 578:
                                 e.imagey = 576
+                            elif e.imagey <= 1345:
+                                e.imagey = 1344
+                            elif e.imagey <= 2113:
+                                e.imagey = 2112
+                            elif e.imagey <= 2881:
+                                e.imagey = 2880
                     else:
                         if e.y > game_data["worldy"] + (height // 2) - 96:
                             e.direction = "north"
                             if e.imagey <= 578:
                                 e.imagey = 192
+                            elif e.imagey <= 1345:
+                                e.imagey = 960
+                            elif e.imagey <= 2113:
+                                e.imagey = 1728
+                            elif e.imagey <= 2881:
+                                e.imagey = 2496
                         if e.y < game_data["worldy"] + (height // 2) - 96:
                             e.direction = "south"
                             if e.imagey <= 578:
                                 e.imagey = 0
+                            elif e.imagey <= 1345:
+                                e.imagey = 768
+                            elif e.imagey <= 2113:
+                                e.imagey = 1536
+                            elif e.imagey <= 2881:
+                                e.imagey = 2304
                 else:
                     if e.direction == "north":
                         e.y -= 50
@@ -1209,6 +1284,11 @@ while running == True:
                             if game_data["mission"] < 2.5:
                                 game_data["mission"] = 2.5
                             talking = True
+                        elif killcount >= 29 and game_data["area"] == "forest":
+                            npc_words = ["You win! Return to the castle for your next mission."]
+                            if game_data["mission"] < 3.5:
+                                game_data["mission"] = 3.5
+                            talking = True
         if holding_rock == True:
             if player_imagey == 0:
                 pygame.draw.circle(screen, pygame.Color(200, 200, 200), (width // 2 - 30, height // 2 + 40), 5)
@@ -1251,7 +1331,7 @@ while running == True:
                 screen_object_rect = pygame.Rect(obstacle_rect.x - game_data["worldx"], obstacle_rect.y - game_data["worldy"], obstacle_rect.width, obstacle_rect.height)
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "tree"
-                screen.blit(objects, (screen_object_rect.x, screen_object_rect.y), area=(768, 0, 768, 768))
+                screen.blit(objects, (screen_object_rect.x, screen_object_rect.y), area=(0, 768, 768, 768))
                 if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
                     screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
         if game_data["area"] == "castle":
@@ -1276,21 +1356,19 @@ while running == True:
             elif screen_objects[obstacle] == "castle":
                 new_obstacle_rect = pygame.Rect(obstacle[0] + 125, obstacle[1] + 500, obstacle[2] - 300, obstacle[3] - 500)
             elif screen_objects[obstacle] == "tree":
-                new_obstacle_rect = pygame.Rect(obstacle[0] + 200, obstacle[1] + obstacle[3] - 50, obstacle[2] - 500, 100)
+                new_obstacle_rect = pygame.Rect(obstacle[0] + 200, obstacle[1] + obstacle[1] + 900, obstacle[2] - 500, 100)
             else:
                 new_obstacle_rect = pygame.Rect(obstacle[0], obstacle[1], obstacle[2] - 50, obstacle[3] - 10)
             if player_rect.colliderect(pygame.Rect(obstacle)):
-                if screen_objects[obstacle] == "house" or screen_objects[obstacle] == "building" or screen_objects[obstacle] == "castle" or screen_objects[obstacle] == "tree":
-                    if player_rect.colliderect(new_obstacle_rect):
-                        if player_rect.bottom >= new_obstacle_rect.bottom:
-                            pass
-                        else:
-                            collision = True
-                            game_data["worldx"] = old_worldx
-                            game_data["worldy"] = old_worldy
-                    if player_rect.bottom > new_obstacle_rect.top + 100 or player_rect.left > new_obstacle_rect.right:
-                        screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
-                else:
+                if player_rect.colliderect(new_obstacle_rect):
+                    if player_rect.bottom >= new_obstacle_rect.bottom:
+                        pass
+                    else:
+                        collision = True
+                        game_data["worldx"] = old_worldx
+                        game_data["worldy"] = old_worldy
+                if player_rect.bottom > new_obstacle_rect.top + 100 or player_rect.left > new_obstacle_rect.right:
+                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
                     if player_rect.colliderect(new_obstacle_rect):
                         if player_rect.bottom > new_obstacle_rect.top:
                             screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
@@ -1506,11 +1584,11 @@ while running == True:
             if game_data["mission"] > 2.5:
                 try:
                     if mouse_pos[0] < level_3_button.right and mouse_pos[0] > level_3_button.left and mouse_pos[1] > level_3_button.top and mouse_pos[1] < level_3_button.bottom:
-                        level_3_button = draw_button("Right outside the city (mission 3)", height/3 + 100, pygame.Color(255, 255, 255), pygame.Color(180, 180, 180))
+                        level_3_button = draw_button("The forest (mission 3)", height/3 + 100, pygame.Color(255, 255, 255), pygame.Color(180, 180, 180))
                     else:
-                        level_3_button = draw_button("Right outside the city (mission 3)", height/3 + 100, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
+                        level_3_button = draw_button("The forest (mission 3)", height/3 + 100, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
                 except NameError:
-                    level_3_button = draw_button("Right outside the city (mission 3)", height/3 + 100, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
+                    level_3_button = draw_button("The forest (mission 3)", height/3 + 100, pygame.Color(255, 255, 255), pygame.Color(150, 150, 150))
             if game_data["mission"] > 3.5:
                 try:
                     if mouse_pos[0] < level_4_button.right and mouse_pos[0] > level_4_button.left and mouse_pos[1] > level_4_button.top and mouse_pos[1] < level_4_button.bottom:
