@@ -342,7 +342,7 @@ class enemy():
         self.rotated = None
         self.alive = True
 
-city_map = {(0, 0, 200, 7600): "wall", (0, 7400, 7600, 200): "wall", (7400, 0, 200, 7600): "wall", (0, 0, 7600, 200): "wall", (500, 1200, 768, 768):"house", (700, 7000, 768, 768): "house", (800, 6400, 768, 768): "house", (6000, 5000, 768, 768): "house", (4000, 2700, 768, 768): "building", (4500, 600, 768, 768): "building", (700, 750, 768, 768): "building", (4500, 6000, 768, 768): "tree", (300, 400, 768, 768): "tree", (6000, 7500, 768, 768): "tree", (500, 4000, 768, 768): "tree", (3300, 2000, 1440, 1840): "castle"}
+city_map = {(0, 0, 200, 7600): "wall", (0, 7400, 7600, 200): "wall", (7400, 0, 200, 7600): "wall", (0, 0, 7600, 200): "wall", (500, 1200, 768, 768):"house", (2000, 6200, 768, 768): "house", (700, 5400, 768, 768): "house", (6000, 5000, 768, 768): "house", (4000, 2700, 768, 768): "building", (4500, 200, 768, 768): "building", (850, 750, 768, 768): "building", (4500, 6000, 768, 768): "tree", (300, 400, 768, 768): "tree", (6000, 7500, 768, 768): "tree", (500, 4000, 768, 768): "tree", (3300, 2000, 1440, 1840): "castle"}
 castle_map = {(0, 0, 100, 3000): "wall", (0, 2900, 2000, 100): "wall", (1900, 0, 100, 3000): "wall", (0, 0, 2000, 100): "wall"}
 throne_room_map = {(0, 0, 1000, 100): "wall", (0, 0, 100, 1000): "wall", (990, 0, 100, 1090): "wall", (0, 990, 1000, 100): "wall"}
 grass_map = {(-760, 200, 4000, 200): "wall"}
@@ -1360,20 +1360,20 @@ while running == True:
                 screen_object_rect = pygame.draw.rect(screen, pygame.Color(150, 150, 150), (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2), obstacle_rect.width, obstacle_rect.height))
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "wall"
-                if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
-                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
+##                if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
+##                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
             elif current_map[obstacle] == "house":
-                screen_object_rect = screen.blit(objects, (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2)), area=(0, 0, 768, 768))
-                screen_object = tuple(screen_object_rect)
-                screen_objects[screen_object] = "house"
-                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
-                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
-            elif current_map[obstacle] == "building":
                 screen_object_rect = screen.blit(objects, (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2)), area=(768, 0, 768, 768))
                 screen_object = tuple(screen_object_rect)
+                screen_objects[screen_object] = "house"
+##                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
+##                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
+            elif current_map[obstacle] == "building":
+                screen_object_rect = screen.blit(objects, (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2)), area=(0, 0, 768, 768))
+                screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "building"
-                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
-                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
+##                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
+##                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
             elif current_map[obstacle] == "castle":
                 screen_object_rect = pygame.Rect(obstacle_rect.x - game_data["worldx"], obstacle_rect.y - game_data["worldy"], obstacle_rect.width, obstacle_rect.height)
                 screen_object = tuple(screen_object_rect)
@@ -1387,8 +1387,8 @@ while running == True:
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "tree"
                 screen.blit(objects, (screen_object_rect.x, screen_object_rect.y), area=(0, 768, 768, 768))
-                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
-                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
+##                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
+##                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
         if game_data["area"] == "castle":
             screen.blit(doors, (city_door.x - game_data["worldx"], city_door.y - game_data["worldy"]), area=(384, 0, 384, 384)) # city_door
             screen.blit(doors, (throne_room_door.x - game_data["worldx"], throne_room_door.y - game_data["worldy"]), area=(384, 0, 384, 384)) # throne_room_door
@@ -1405,16 +1405,18 @@ while running == True:
             screen.blit(doors, (outside_city_gate.x - game_data["worldx"], outside_city_gate.y - game_data["worldy"]), area=(0, 0, 384, 384))
         for obstacle in screen_objects.keys():
             if screen_objects[obstacle] == "house":
-                new_obstacle_rect = pygame.Rect(obstacle[0] + 300, (obstacle[1] + obstacle[3]) - 100, obstacle[2] // 3, 100)
+                new_obstacle_rect = pygame.Rect(obstacle[0] + 300, (obstacle[1] + obstacle[3]) - 200, obstacle[2] // 3, 20)
             elif screen_objects[obstacle] == "building":
-                new_obstacle_rect = pygame.Rect(obstacle[0] + 200, (obstacle[1] + obstacle[3]) - 50, obstacle[2] // 3, 100)
+                new_obstacle_rect = pygame.Rect(obstacle[0] + 200, (obstacle[1] + obstacle[3]) - 200, obstacle[2] // 2 + 50, 20)
             elif screen_objects[obstacle] == "castle":
                 new_obstacle_rect = pygame.Rect(obstacle[0] + 125, obstacle[1] + 500, obstacle[2] - 300, obstacle[3] - 500)
             elif screen_objects[obstacle] == "tree":
                 new_obstacle_rect = pygame.Rect(obstacle[0] + 250, obstacle[1] + obstacle[1] + 900, obstacle[2] - 520, 100)
             else:
                 new_obstacle_rect = pygame.Rect(obstacle[0], obstacle[1], obstacle[2] - 50, obstacle[3] - 10)
-            if player_rect.colliderect(pygame.Rect(obstacle)):
+            if player_rect.colliderect(pygame.Rect(obstacle[0], obstacle[1], obstacle[2], obstacle[3] + 500)):
+                if player_rect.top > new_obstacle_rect.top or player_rect.left > new_obstacle_rect.right:
+                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
                 if player_rect.colliderect(new_obstacle_rect):
                     if player_rect.bottom >= new_obstacle_rect.bottom:
                         pass
@@ -1422,11 +1424,8 @@ while running == True:
                         collision = True
                         game_data["worldx"] = old_worldx
                         game_data["worldy"] = old_worldy
-                if player_rect.bottom > new_obstacle_rect.top + 100 or player_rect.left > new_obstacle_rect.right:
-                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
+                if player_rect.bottom > new_obstacle_rect.bottom + 100 or player_rect.left > new_obstacle_rect.right:
                     if player_rect.colliderect(new_obstacle_rect):
-                        if player_rect.bottom > new_obstacle_rect.top:
-                            screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
                         collision = True
                         game_data["worldx"] = old_worldx
                         game_data["worldy"] = old_worldy
