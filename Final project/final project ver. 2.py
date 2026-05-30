@@ -729,6 +729,8 @@ while running == True:
                                     npc_words = ["Finally, you're back. I have a very important mission for you."]
                                 elif game_data["mission"] == 3.5:
                                     npc_words = ["Now that all those scary bugs are gone, I have another mission for you."]
+                                elif game_data["mission"] >= 4.5:
+                                    npc_words = ["Go away. You're fired."]
                                 else:
                                     npc_words = ["What are you doing here? Hurry up and finish your mission!"]
                                 talking = True
@@ -1263,7 +1265,7 @@ while running == True:
                             elif e.imagey <= 2881:
                                 e.imagey = 2880
                             elif e.imagey <= 3456:
-                                e.imagey = 2648
+                                e.imagey = 3648
                     else:
                         if e.y > game_data["worldy"] + (height // 2) - 96:
                             e.direction = "north"
@@ -1360,20 +1362,14 @@ while running == True:
                 screen_object_rect = pygame.draw.rect(screen, pygame.Color(150, 150, 150), (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2), obstacle_rect.width, obstacle_rect.height))
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "wall"
-##                if player_rect.top < screen_object_rect.top and player_rect.colliderect(screen_object_rect):
-##                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
             elif current_map[obstacle] == "house":
                 screen_object_rect = screen.blit(objects, (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2)), area=(768, 0, 768, 768))
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "house"
-##                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
-##                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
             elif current_map[obstacle] == "building":
                 screen_object_rect = screen.blit(objects, (obstacle_rect.x - game_data["worldx"] + (width/2), obstacle_rect.y - game_data["worldy"] + (height/2)), area=(0, 0, 768, 768))
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "building"
-##                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
-##                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
             elif current_map[obstacle] == "castle":
                 screen_object_rect = pygame.Rect(obstacle_rect.x - game_data["worldx"], obstacle_rect.y - game_data["worldy"], obstacle_rect.width, obstacle_rect.height)
                 screen_object = tuple(screen_object_rect)
@@ -1387,8 +1383,6 @@ while running == True:
                 screen_object = tuple(screen_object_rect)
                 screen_objects[screen_object] = "tree"
                 screen.blit(objects, (screen_object_rect.x, screen_object_rect.y), area=(0, 768, 768, 768))
-##                if player_rect.top < screen_object_rect.bottom and player_rect.colliderect(screen_object_rect):
-##                    screen.blit(player_sprite, ((width / 2) - 96, (height / 2) - 96), area=(192*round(player_imagex/192), player_imagey, 192, 192))
         if game_data["area"] == "castle":
             screen.blit(doors, (city_door.x - game_data["worldx"], city_door.y - game_data["worldy"]), area=(384, 0, 384, 384)) # city_door
             screen.blit(doors, (throne_room_door.x - game_data["worldx"], throne_room_door.y - game_data["worldy"]), area=(384, 0, 384, 384)) # throne_room_door
