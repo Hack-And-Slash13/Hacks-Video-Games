@@ -33,7 +33,7 @@ Button Masher is a pygame game where you have to push a button that moves around
 
 ### Cosmo Crash
 
-Cosmo Crash is a pygame game where you fly a spaceship through an asteroid feild, and try to get poits without getting hit. You must download all the files in the Cosmo Crash folder and have pygame installed to run it. You can use the WASD keys or an Xbox controller.
+Cosmo Crash is a pygame game where you fly a spaceship through an asteroid feild, and try to get points without getting hit. You must download all the files in the Cosmo Crash folder and have pygame installed to run it. You can use the WASD keys or an Xbox controller.
 
 ### Cypher Smasher
 
