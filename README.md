@@ -45,4 +45,4 @@ Bible Trivia Game is a trivia game about the bible (can you believe it?). It use
 
 ### Pebble Power
 
-Pebble Power is a pygame game where you throw rocks at enemies.
+Pebble Power is a pygame game where you throw rocks at enemies. (It might get updated more later)
